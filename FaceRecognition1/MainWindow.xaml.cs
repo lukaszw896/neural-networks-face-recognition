@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using Luxand;
 using Microsoft.Win32;
 using FaceRecognition1.Content;
+using FaceRecognition1.Helper;
 
 namespace FaceRecognition1
 {
@@ -25,13 +26,13 @@ namespace FaceRecognition1
     {
         public int Image ;
         public List<Face> faces;
-
         public MainWindow()
         {
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
             FSDK.InitializeLibrary(); 
             InitializeComponent();
             faces = new List<Face>();
+            List<List<string>> imageList = ImageLoader.GetImages();
         }
 
         private void Load_Pic_Click(object sender, RoutedEventArgs e)
@@ -52,11 +53,11 @@ namespace FaceRecognition1
         /// Metoda dodaje jedna twarz do listy. 1 jak sie uda
         /// -1 jak sie nie uda
         /// </summary>
-        private int addSingleFace(String pic_adr, String _name)
+        private int addSingleFace(String picDir, String _name)
         {
             Face twarz = new Face();
 
-            if (FSDK.LoadImageFromFile(ref Image, pic_adr) != FSDK.FSDKE_OK)
+            if (FSDK.LoadImageFromFile(ref Image, picDir) != FSDK.FSDKE_OK)
             {
                 Console.WriteLine("addSingleFace error !");
                 return -1;

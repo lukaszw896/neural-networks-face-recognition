@@ -190,7 +190,7 @@ namespace FaceRecognition1.Content
         //-------------------------------------------------------------------------------
 
         /// <summary>
-        /// Metoda swraca liste wszystkich przygotowanych cech
+        /// Metoda zwraca liste wszystkich przygotowanych cech
         /// </summary>
         public static List<float> GetFeatures(FSDK.TPoint[] FacialFeatures)
         {
