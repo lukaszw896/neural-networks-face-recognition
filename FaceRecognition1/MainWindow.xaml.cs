@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Luxand;
 using Microsoft.Win32;
+using FaceRecognition1.Content;
 
 namespace FaceRecognition1
 {
@@ -33,6 +34,8 @@ namespace FaceRecognition1
 
         private void Load_Pic_Click(object sender, RoutedEventArgs e)
         {
+            Face twarz = new Face();
+
             String pic_adr = "";
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
@@ -54,9 +57,18 @@ namespace FaceRecognition1
 
             if (FSDK.DetectFacialFeatures(Image, out FacialFeatures) == FSDK.FSDKE_OK)
             {
-                Console.WriteLine("wykryto cechy twarzy");
-                Console.WriteLine("Left eye location: (" + FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_LEFT_EYE].x + "," + FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_LEFT_EYE].y + ")");
-                Console.WriteLine("Right eye location: (" + FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_RIGHT_EYE].x + "," + FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_RIGHT_EYE].y + ")");
+                twarz.name = openFileDialog.SafeFileName;
+                Console.WriteLine(twarz.name);
+                twarz.index = 0;
+                twarz.networkIndex = 0;
+                List<float> faceFeatures = FeatureConverter.GetFeatures(FacialFeatures);
+                twarz.features = faceFeatures;
+
+                if (twarz.ValidateFace() == 1)
+                    Console.WriteLine("Wygenerowano dane twarzy");
+                else
+                    Console.WriteLine("Blad twarzy "+twarz.name);
+
             }
         }
     }
