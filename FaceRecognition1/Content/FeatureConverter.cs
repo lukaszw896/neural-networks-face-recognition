@@ -16,6 +16,7 @@ namespace FaceRecognition1.Content
     {
         /// <summary>
         /// Stosunek rozstawu oczu do dlugosci nosa
+        /// Pewniak
         /// </summary>
         public static float EyesSpacing_NoseHeigh(FSDK.TPoint[] FacialFeatures)
         {
@@ -79,6 +80,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek szerokosci twarzy do rozstawu oczu
+        /// Pewniak
         /// </summary>
         public static float FaceWidth_EyesSpacing(FSDK.TPoint[] FacialFeatures)
         {
@@ -100,6 +102,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek dlugosci nosa do szerokosci twarzy
+        /// Pewniak
         /// </summary>
         public static float NoseHeigh_FaceWidth(FSDK.TPoint[] FacialFeatures)
         {
@@ -121,6 +124,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek szerokosci nosa do szerokosci twarzy
+        /// Pewniak
         /// </summary>
         public static float NoseWidth_FaceWidth(FSDK.TPoint[] FacialFeatures)
         {
@@ -142,6 +146,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek szerokosci nosa do dlugosci nosa
+        /// Pewniak
         /// </summary>
         public static float NoseWidth_NoseHeight(FSDK.TPoint[] FacialFeatures)
         {
@@ -163,6 +168,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek szerokosci brwi do rozstawu brwi
+        /// Pewniak
         /// </summary>
         public static float EybrowWidth_EyebrowSpaces(FSDK.TPoint[] FacialFeatures)
         {
@@ -187,6 +193,47 @@ namespace FaceRecognition1.Content
             return (float)(averageEybrowWidth / eybrowSpaces);
         }
 
+        /// <summary>
+        /// Stosunek dlugosci twarzy do szerokosci twarzy
+        /// Pewniak
+        /// </summary>
+        public static float FaceHeigh_FaceWidth(FSDK.TPoint[] FacialFeatures)
+        {
+            int faceTopX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BRIDGE].x;
+            int faceTopY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BRIDGE].y;
+            int faceBottomX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_BOTTOM].x;
+            int faceBottomY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_BOTTOM].y;
+
+            int faceLeftX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR14].x;
+            int faceLeftY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR14].y;
+            int faceRightX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR15].x;
+            int faceRightY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR15].y;
+
+            double faceWidth = Math.Sqrt(Math.Pow((double)(faceRightX - faceLeftX), 2) + Math.Pow((double)(faceRightY - faceLeftY), 2));
+            double faceHeigh = Math.Sqrt(Math.Pow((double)(faceTopX - faceBottomX), 2) + Math.Pow((double)(faceTopY - faceBottomY), 2));
+
+            return (float)(faceHeigh / faceWidth);
+        }
+
+        /// <summary>
+        /// Stosunek dlugosci twarzy do dlugosci nosa
+        /// Pewniak
+        /// </summary>
+        public static float FaceHeigh_NoseHeigh(FSDK.TPoint[] FacialFeatures)
+        {
+            int faceTopX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BRIDGE].x;
+            int faceTopY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BRIDGE].y;
+            int faceBottomX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_BOTTOM].x;
+            int faceBottomY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_BOTTOM].y;
+
+            int noseBottomX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BOTTOM].x;
+            int noseBottomY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_NOSE_BOTTOM].y;
+
+            double noseHeigh = Math.Sqrt(Math.Pow((double)(faceTopX - noseBottomX), 2) + Math.Pow((double)(faceTopY - noseBottomY), 2));
+            double faceHeigh = Math.Sqrt(Math.Pow((double)(faceTopX - faceBottomX), 2) + Math.Pow((double)(faceTopY - faceBottomY), 2));
+
+            return (float)(faceHeigh / noseHeigh);
+        }
         //-------------------------------------------------------------------------------
 
         /// <summary>
@@ -204,6 +251,8 @@ namespace FaceRecognition1.Content
             neuralFeatures.Add(NoseWidth_FaceWidth(FacialFeatures));
             neuralFeatures.Add(NoseWidth_NoseHeight(FacialFeatures));
             neuralFeatures.Add(EybrowWidth_EyebrowSpaces(FacialFeatures));
+            neuralFeatures.Add(FaceHeigh_FaceWidth(FacialFeatures));
+            neuralFeatures.Add(FaceHeigh_NoseHeigh(FacialFeatures));
 
             return neuralFeatures;
         }

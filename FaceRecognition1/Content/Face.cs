@@ -13,6 +13,7 @@ namespace FaceRecognition1.Content
     /// features sa inputem do sieci neuronowej.
     /// networkIndex bedzie oczekiwanym wynikiem sieci.
     /// </summary>
+    [Serializable]
     public class Face
     {
         public string name { get; set; }
@@ -45,9 +46,14 @@ namespace FaceRecognition1.Content
                 return -1;
         }
 
+        /// <summary>
+        /// Tu bedziemy tworzyc index ktory bedzie odpowiedzia sieci
+        /// narazie nie wiadomo czy to musza byc kolejne inty, czy mozna 
+        /// je jakos generowac z nazw pliku i folderu
+        /// </summary>
         public int GenerateNetworkIndex()
         {
-            int index = -1;
+            int index = 0;
             return index;
         }
     }

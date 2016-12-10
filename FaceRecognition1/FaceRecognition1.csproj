@@ -73,6 +73,7 @@
     <Compile Include="Content\Face.cs" />
     <Compile Include="Content\FeatureConverter.cs" />
     <Compile Include="Helper\ImageLoader.cs" />
+    <Compile Include="Helper\InputHelper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
