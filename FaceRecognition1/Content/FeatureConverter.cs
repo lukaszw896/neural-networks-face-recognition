@@ -234,6 +234,8 @@ namespace FaceRecognition1.Content
 
             return (float)(faceHeigh / noseHeigh);
         }
+
+
         //-------------------------------------------------------------------------------
 
         /// <summary>

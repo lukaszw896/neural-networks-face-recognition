@@ -1,10 +1,14 @@
 ﻿using FaceRecognition1.Content;
 using Luxand;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FaceRecognition1.Helper
 {
@@ -49,6 +53,56 @@ namespace FaceRecognition1.Helper
                 Console.WriteLine("addSingleFace error !");
             }
             return twarz;
+        }
+
+        public static int SaveBinary(List<Face> faces)
+        {
+            if (faces.Count < 1)
+            {
+                MessageBox.Show("Nie ma danych do zapisania");
+                return -1;
+            }
+
+            SaveFileDialog save = new SaveFileDialog();
+            save.FileName = "ZdjeciaInput"; // Default file name
+            save.DefaultExt = ".bin"; // Default file extension
+            save.Title = "Save As...";
+            save.Filter = "Binary File (*.bin)|*.bin";
+            save.RestoreDirectory = true;
+            save.InitialDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+            Nullable<bool> result = save.ShowDialog();
+            if (result == true)
+            {
+                string filename = save.FileName;
+                FileStream fs = new FileStream(filename, FileMode.Create);
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(fs, faces);
+                BinaryWriter w = new BinaryWriter(fs);
+                w.Close();
+                fs.Close();
+            }
+            return 1;
+        }
+
+        public static List<Face> LoadBinary()
+        {
+            List<Face> faces = new List<Face>();
+            OpenFileDialog open = new OpenFileDialog();
+            open.Title = "Open File...";
+            open.Filter = "Binary File (*.bin)|*.bin";
+            if (open.ShowDialog() == true)
+            {
+                FileStream fs = new FileStream(open.FileName, FileMode.Open);
+                BinaryFormatter bf = new BinaryFormatter();
+                BinaryReader br = new BinaryReader(fs);
+
+                faces = (List<Face>)bf.Deserialize(fs);
+
+                fs.Close();
+                br.Close();
+            }
+            return faces;
         }
     }
 }

@@ -65,57 +65,20 @@ namespace FaceRecognition1
             twarz = InputHelper.FacePreparation( picDir, _name, _folderName, _index, twarz);
                        
             faces.Add(twarz);
-            
             return 1;
         }
 
         private void Save_Pic_Data_Click(object sender, RoutedEventArgs e)
         {
-            if (faces.Count < 1)
-            {
-                MessageBox.Show("Nie ma danych do zapisania");
-                return;
-            }
-
-            SaveFileDialog save = new SaveFileDialog();
-            save.FileName = "ZdjeciaInput"; // Default file name
-            save.DefaultExt = ".bin"; // Default file extension
-            save.Title = "Save As...";
-            save.Filter = "Binary File (*.bin)|*.bin";
-            save.RestoreDirectory = true;
-            save.InitialDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-            Nullable<bool> result = save.ShowDialog();
-            if (result == true)
-            {
-                string filename = save.FileName;
-                FileStream fs = new FileStream(filename, FileMode.Create);
-                BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(fs, faces);
-                BinaryWriter w = new BinaryWriter(fs);
-                w.Close();
-                fs.Close();
-            }
+            if (InputHelper.SaveBinary(faces) == 1)
+                Console.WriteLine("zapisano do binarki");
         }
 
         private void Load_Pic_Data_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog open = new OpenFileDialog();
-            open.Title = "Open File...";
-            open.Filter = "Binary File (*.bin)|*.bin";
-            if (open.ShowDialog() == true)
-            {
-                FileStream fs = new FileStream(open.FileName, FileMode.Open);
-                BinaryFormatter bf = new BinaryFormatter();
-                BinaryReader br = new BinaryReader(fs);
-
-                faces.Clear();
-                faces = (List<Face>)bf.Deserialize(fs);
-
-                fs.Close();
-                br.Close();
-            }
-            Console.WriteLine("wczytano z binarki");
+            faces.Clear();
+            faces = InputHelper.LoadBinary();
+            Console.WriteLine("wczytano z binarki "+ faces.Count + " danych");
         }
     }
 }
