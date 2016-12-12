@@ -91,13 +91,16 @@ namespace FaceRecognition1
         private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("Szykuje dane zbioru uczacego");
-            double [][] neuralInput = NetworkHelper.CreateLearningInputDataSet(faces);
-            double [][] neuralOutput = NetworkHelper.CreateLearningOutputDataSet(faces);
-            INeuralDataSet learningSet;
+            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces,false);
+            double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false);
+            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
+            double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true);
+            INeuralDataSet learningSet, testingSet;
 
-            learningSet = NetworkHelper.NormaliseDataSet(neuralInput, neuralOutput);
+            learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput);
+            testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput);
 
-            NetworkHelper.LearnNetwork(learningSet, faces[0].features.Count);
+            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count());
         }
     }
 }
