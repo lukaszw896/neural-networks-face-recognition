@@ -34,14 +34,15 @@ namespace FaceRecognition1.Helper
                 picNum = 2.0;
 
             double[][] neuralInput = new double[(int)(faces.Count * (1.0 / picNum))][];
-
-            for (int i = 0; i < neuralInput.Count(); i ++)
+            int counter = 0;
+            for (int i = 0; i < faces.Count(); i += (int)picNum)
             {
-                neuralInput[i] = new double[faces[i].features.Count];
+                neuralInput[counter] = new double[faces[i].features.Count];
                 for (int j = 0; j < faces[i].features.Count; j++)
                 {
-                    neuralInput[i][j] = (double)faces[i].features[j];
+                    neuralInput[counter][j] = (double)faces[i].features[j];
                 }
+                counter++;
             }
             return neuralInput;
         }
@@ -53,18 +54,19 @@ namespace FaceRecognition1.Helper
                 picNum = 2.0;
 
             double[][] neuralOutput = new double[(int)(faces.Count * (1.0 / picNum))][];
-
-            for (int i = 0; i < neuralOutput.Count(); i ++)
+            int counter = 0;
+            for (int i = 0; i < faces.Count(); i += (int)picNum)
             {
-                neuralOutput[i] = new double[1];
-                neuralOutput[i][0] = (double)faces[i].networkIndex;
+                neuralOutput[counter] = new double[1];
+                neuralOutput[counter][0] = (double)faces[i].networkIndex;
+                counter++;
             }
             return neuralOutput;
         }
 
         public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize)
         {
-            int iteracje = 1000;
+            int iteracje = 3000;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
             ITrain Network = CreateNeuronNetwork(learningSet, inputSize);
@@ -211,8 +213,8 @@ namespace FaceRecognition1.Helper
             BasicNetwork network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
 
-            int szerokosc = inputSize + 4;
-            int dlugosc = 4;
+            int szerokosc = inputSize;
+            int dlugosc = 1;
             bool bias = true;
             IActivationFunction ActivationFunction =  new ActivationSigmoid();
             double learning = 0.01;
