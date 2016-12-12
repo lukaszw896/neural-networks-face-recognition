@@ -18,7 +18,7 @@ namespace FaceRecognition1.Helper
     /// </summary>
     public class InputHelper
     {
-        public static Face FacePreparation(String picDir, String _name, String _folderName, int _index, Face twarz)
+        public static Face FacePreparation(String picDir, String _name, String _folderName, int _index, Face twarz, int _folderIndex)
         {
             int Image = 0;
             if (FSDK.LoadImageFromFile(ref Image, picDir) != FSDK.FSDKE_OK)
@@ -40,6 +40,7 @@ namespace FaceRecognition1.Helper
                 twarz.folderName = _folderName;
                 Console.WriteLine(twarz.name);
                 twarz.index = _index;
+                twarz.networkIndex = _folderIndex;
                 List<float> faceFeatures = FeatureConverter.GetFeatures(FacialFeatures);
                 twarz.features = faceFeatures;
 

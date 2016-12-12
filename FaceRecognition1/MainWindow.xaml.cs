@@ -18,6 +18,9 @@ using FaceRecognition1.Content;
 using FaceRecognition1.Helper;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Encog.Neural.NeuralData;
+using Encog.Neural.Data.Basic;
+
 
 namespace FaceRecognition1
 {
@@ -39,16 +42,17 @@ namespace FaceRecognition1
         private void Load_Pic_Click(object sender, RoutedEventArgs e)
         {
             List<List<string>> imageList = ImageLoader.GetImages();
-
+            int folderIndex = 0;
             for(int i = 0 ; i < imageList.Count; i ++)
             {
+                folderIndex = i;
                 List<string> pictures = imageList[i];
                 string folderName = imageList[i][0];
                 var folderNames = folderName.Split('\\').ToArray();
                 folderName = folderNames[folderNames.Count() - 2];
                 for(int j=0; j<pictures.Count; j++)
                 {
-                    addSingleFace(pictures[j], pictures[j].Substring(pictures[j].LastIndexOf('\\') + 1), folderName, j);
+                    addSingleFace(pictures[j], pictures[j].Substring(pictures[j].LastIndexOf('\\') + 1), folderName, j, folderIndex);
                 }
             }
             
@@ -59,15 +63,18 @@ namespace FaceRecognition1
         /// Metoda dodaje jedna twarz do listy. 1 jak sie uda
         /// -1 jak sie nie uda
         /// </summary>
-        private int addSingleFace(String picDir, String _name, String _folderName, int _index)
+        private int addSingleFace(String picDir, String _name, String _folderName, int _index, int _folderIndex)
         {
             Face twarz = new Face();
-            twarz = InputHelper.FacePreparation( picDir, _name, _folderName, _index, twarz);
+            twarz = InputHelper.FacePreparation(picDir, _name, _folderName, _index, twarz, _folderIndex);
                        
             faces.Add(twarz);
             return 1;
         }
 
+        /// <summary>
+        /// Obsluga eventow z guzikow
+        /// </summary>
         private void Save_Pic_Data_Click(object sender, RoutedEventArgs e)
         {
             if (InputHelper.SaveBinary(faces) == 1)
@@ -79,6 +86,18 @@ namespace FaceRecognition1
             faces.Clear();
             faces = InputHelper.LoadBinary();
             Console.WriteLine("wczytano z binarki "+ faces.Count + " danych");
+        }
+
+        private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Szykuje dane zbioru uczacego");
+            double [][] neuralInput = NetworkHelper.CreateLearningInputDataSet(faces);
+            double [][] neuralOutput = NetworkHelper.CreateLearningOutputDataSet(faces);
+            INeuralDataSet learningSet;
+
+            learningSet = NetworkHelper.NormaliseDataSet(neuralInput, neuralOutput);
+
+            NetworkHelper.LearnNetwork(learningSet, faces[0].features.Count);
         }
     }
 }

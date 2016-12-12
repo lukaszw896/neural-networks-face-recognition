@@ -15,6 +15,7 @@
             <Button Content="Zaladuj baze zdjec" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Margin="5,5,5,5" VerticalAlignment="Center" Click="Load_Pic_Click" />
             <Button Content="Zapisz wygenerowane dane" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" Margin="5,5,5,5" VerticalAlignment="Center" Click="Save_Pic_Data_Click" />
             <Button Content="Zaladuj wygenerowane dane" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,5" VerticalAlignment="Center" Click="Load_Pic_Data_Click" />
+            <Button Content="Odpal siec" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,5" VerticalAlignment="Center" Click="Ucz_Siec_Click" />
         </Grid>
     </Grid>
 </Window>

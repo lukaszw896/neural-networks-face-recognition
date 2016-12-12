@@ -54,6 +54,7 @@ namespace FaceRecognition1.Content
         public int GenerateNetworkIndex()
         {
             int index = 0;
+            //index = this.folderName.GetHashCode();
             return index;
         }
     }
