@@ -41,6 +41,7 @@ namespace FaceRecognition1
 
         private void Load_Pic_Click(object sender, RoutedEventArgs e)
         {
+            faces.Clear();
             List<List<string>> imageList = ImageLoader.GetImages();
             int folderIndex = 0;
             for(int i = 0 ; i < imageList.Count; i ++)

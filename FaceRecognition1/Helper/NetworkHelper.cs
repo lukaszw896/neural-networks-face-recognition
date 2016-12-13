@@ -155,7 +155,7 @@ namespace FaceRecognition1.Helper
 
             for (int i = 0; i < answers.Length; i ++ )
             {
-                denorm_answers[i] = (int)((answers[i] * (maxOutput - minOutput)) + minOutput);
+                denorm_answers[i] = (int)Math.Round(((answers[i] * (maxOutput - minOutput)) + minOutput));
             }
             
             Console.WriteLine("Zdenormalizowano");
@@ -169,8 +169,8 @@ namespace FaceRecognition1.Helper
             double[][] norm_ideal = new double[input.Length][];
 
             double maxInput = input[0][0], minInput = input[0][0];
-            maxOutput = input[0][0];
-            minOutput = input[0][0];
+            maxOutput = ideal[0][0];
+            minOutput = ideal[0][0];
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -183,10 +183,10 @@ namespace FaceRecognition1.Helper
                         maxInput = input[i][j];
                 }
 
-                if (ideal[i][0] < minInput)
-                    maxOutput = ideal[i][0];
+                if (ideal[i][0] < minOutput)
+                    minOutput = ideal[i][0];
 
-                if (ideal[i][0] > maxInput)
+                if (ideal[i][0] > maxOutput)
                     maxOutput = ideal[i][0];
             }
 
