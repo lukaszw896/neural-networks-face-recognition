@@ -31,6 +31,7 @@ namespace FaceRecognition1
     {
         public int Image ;
         public List<Face> faces;
+        public int peopleNumber;
         public MainWindow()
         {
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
@@ -56,7 +57,7 @@ namespace FaceRecognition1
                     addSingleFace(pictures[j], pictures[j].Substring(pictures[j].LastIndexOf('\\') + 1), folderName, j, folderIndex);
                 }
             }
-            
+            peopleNumber = imageList.Count;
             Console.WriteLine("DONE" + faces.Count);
         }
 
@@ -86,22 +87,46 @@ namespace FaceRecognition1
         {
             faces.Clear();
             faces = InputHelper.LoadBinary();
+            int peopleCounter = 0;
+            peopleCounter = faces[faces.Count - 1].networkIndex + 1;
+            peopleNumber = peopleCounter;
             Console.WriteLine("wczytano z binarki "+ faces.Count + " danych");
         }
 
         private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("Szykuje dane zbioru uczacego");
-            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces,false);
-            double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false);
-            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
-            double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true);
-            INeuralDataSet learningSet, testingSet;
+            int multipleOutput = 0;
+            bool test = true;
+            multipleOutput = InputHelper.ChooseMode(test, peopleNumber);
 
-            learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput);
-            testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput);
+            if (multipleOutput == 0)
+            {
+                Console.WriteLine("Szykuje dane zbioru uczacego");
+                double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false);
+                double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput);
+                double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
+                double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput);
+                INeuralDataSet learningSet, testingSet;
 
-            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count());
+                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput,0);
+                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput,0);
+
+                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput);
+            }
+            else
+            {
+                Console.WriteLine("Szykuje dane zbioru uczacego");
+                double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false);
+                double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput);
+                double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
+                double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput);
+                INeuralDataSet learningSet, testingSet;
+
+                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput,1);
+                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput,1);
+
+                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput);
+            }
         }
     }
 }

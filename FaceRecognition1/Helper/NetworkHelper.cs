@@ -47,7 +47,7 @@ namespace FaceRecognition1.Helper
             return neuralInput;
         }
 
-        public static double[][] CreateLearningOutputDataSet(List<Face> faces, bool test)
+        public static double[][] CreateLearningOutputDataSet(List<Face> faces, bool test, int outputSize)
         {
             double picNum = 1.0;
             if (test == false)
@@ -57,19 +57,33 @@ namespace FaceRecognition1.Helper
             int counter = 0;
             for (int i = 0; i < faces.Count(); i += (int)picNum)
             {
-                neuralOutput[counter] = new double[1];
-                neuralOutput[counter][0] = (double)faces[i].networkIndex;
+                if (outputSize == 0)
+                {
+                    neuralOutput[counter] = new double[1];
+                    neuralOutput[counter][0] = (double)faces[i].networkIndex;
+                }
+                else
+                {
+                    neuralOutput[counter] = new double[outputSize];
+                    for (int j = 0; j < outputSize; j++)
+                    {
+                        if(j ==faces[i].networkIndex)
+                            neuralOutput[counter][j] = 1.0;
+                        else
+                            neuralOutput[counter][j] = 0.0;
+                    }
+                }
                 counter++;
             }
             return neuralOutput;
         }
 
-        public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize)
+        public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize)
         {
-            int iteracje = 3000;
+            int iteracje = 10000;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
-            ITrain Network = CreateNeuronNetwork(learningSet, inputSize);
+            ITrain Network = CreateNeuronNetwork(learningSet, inputSize, answersSize);
 
             int iteracja = 0;
             do
@@ -78,7 +92,7 @@ namespace FaceRecognition1.Helper
                 Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
                 errors.Add(Network.Error);
                 iteracja++;
-            } while ((iteracja < iteracje) && (Network.Error > 0.0005));
+            } while ((iteracja < iteracje) && (Network.Error > 0.01));
 
 
             /// TUTAJ SIEC SIE TEORETYCZNIE NAUCZYLA
@@ -91,12 +105,25 @@ namespace FaceRecognition1.Helper
             foreach (INeuralDataPair pair in testingSet)
             {
                 INeuralData output = Network.Network.Compute(pair.Input);
-                neuralAnswer[i] = output[0];
+                if (answersSize != 0)
+                {
+                    double small = 0.50;
+                    for (int r = 0; r < answersSize; r++)
+                    {
+                        if ((double)(output[r]) >= small)
+                        {
+                            neuralAnswer[i] = (double)r;
+                            small = (double)(output[r]);
+                        }
+                    }
+                }
+                else
+                    neuralAnswer[i] = output[0];
                 i++;
             }
-            int[] answers = DenormaliseAnswers(neuralAnswer); 
+            int[] answers = DenormaliseAnswers(neuralAnswer,answersSize); 
             Console.WriteLine("Neural Network Results");
-            double calculateError = CalculateFinalError(answers, testingSet);
+            double calculateError = CalculateFinalError(answers, testingSet, answersSize);
             Console.WriteLine("Error: " + calculateError + " %");
             Console.WriteLine("FINISH");
             CreateErrorFile(errors);
@@ -126,18 +153,33 @@ namespace FaceRecognition1.Helper
             file.Close();
         }
 
-        public static double CalculateFinalError(int[] answers, INeuralDataSet testingSet)
+        public static double CalculateFinalError(int[] answers, INeuralDataSet testingSet, int answersSize)
         {
             int properAnswer = 0;
             double[] neuralAnswers = new double[answers.Count()];
             int j = 0;
-            foreach (INeuralDataPair pair in testingSet)
+            if (answersSize == 0)
             {
-                neuralAnswers[j] = pair.Ideal.Data[0];
-                j++;
+                foreach (INeuralDataPair pair in testingSet)
+                {
+                    neuralAnswers[j] = pair.Ideal.Data[0];
+                    j++;
+                }
             }
-
-            int[] idealAnswers = DenormaliseAnswers(neuralAnswers);
+            else
+            {
+                foreach (INeuralDataPair pair in testingSet)
+                {
+                    for (int r = 0; r < answersSize; r++)
+                    {
+                        if ((double)(pair.Ideal.Data[r]) >= 0.66)
+                            neuralAnswers[j] = (double)r;
+                    }
+                    j++;
+                }
+            }
+            Console.WriteLine("test");
+            int[] idealAnswers = DenormaliseAnswers(neuralAnswers, answersSize);
             for(int i = 0 ; i < answers.Count() ; i++)
             {
                 if (idealAnswers[i] == answers[i])
@@ -148,67 +190,84 @@ namespace FaceRecognition1.Helper
             return error;
         }
 
-        public static int[] DenormaliseAnswers(double[] answers)
+        public static int[] DenormaliseAnswers(double[] answers, int answersSize)
         {
             Console.WriteLine("Denormalizuje wynik...");
             int[] denorm_answers = new int[answers.Length];
-
-            for (int i = 0; i < answers.Length; i ++ )
+            if (answersSize == 0)
             {
-                denorm_answers[i] = (int)Math.Round(((answers[i] * (maxOutput - minOutput)) + minOutput));
+                for (int i = 0; i < answers.Length; i++)
+                {
+                    denorm_answers[i] = (int)Math.Round(((answers[i] * (maxOutput - minOutput)) + minOutput));
+                }
             }
+            else
+                denorm_answers = ConvertDoubleArrayToIntArray(answers);
             
             Console.WriteLine("Zdenormalizowano");
             return denorm_answers;
         }
 
-        public static INeuralDataSet NormaliseDataSet(double[][] input, double[][] ideal)
+        public static int[] ConvertDoubleArrayToIntArray(double[] adDoubleArray)
+        {
+            return adDoubleArray.Select(d => (int)d).ToArray();
+        }
+
+        public static INeuralDataSet NormaliseDataSet(double[][] input, double[][] ideal, int multipleOutput)
         {
             Console.WriteLine("Normalizuje...");
             double[][] norm_input = new double[input.Length][];
             double[][] norm_ideal = new double[input.Length][];
 
-            double maxInput = input[0][0], minInput = input[0][0];
-            maxOutput = ideal[0][0];
-            minOutput = ideal[0][0];
-
-            for (int i = 0; i < input.Length; i++)
+            if (multipleOutput == 0)
             {
-                for (int j = 0; j < input[i].Count(); j++)
-                {
-                    if (input[i][j] < minInput)
-                        minInput = input[i][j];
+                double maxInput = input[0][0], minInput = input[0][0];
+                maxOutput = ideal[0][0];
+                minOutput = ideal[0][0];
 
-                    if (input[i][j] > maxInput)
-                        maxInput = input[i][j];
+                for (int i = 0; i < input.Length; i++)
+                {
+                    for (int j = 0; j < input[i].Count(); j++)
+                    {
+                        if (input[i][j] < minInput)
+                            minInput = input[i][j];
+
+                        if (input[i][j] > maxInput)
+                            maxInput = input[i][j];
+                    }
+
+                    if (ideal[i][0] < minOutput)
+                        minOutput = ideal[i][0];
+
+                    if (ideal[i][0] > maxOutput)
+                        maxOutput = ideal[i][0];
                 }
 
-                if (ideal[i][0] < minOutput)
-                    minOutput = ideal[i][0];
 
-                if (ideal[i][0] > maxOutput)
-                    maxOutput = ideal[i][0];
-            }
-
-
-            for (int i = 0; i < input.Length; i++)
-            {
-                norm_input[i] = new double[input[i].Count()];
-                for (int j = 0; j < input[i].Count(); j++)
+                for (int i = 0; i < input.Length; i++)
                 {
-                    norm_input[i][j] = (input[i][j] - minInput) / (maxInput - minInput);
+                    norm_input[i] = new double[input[i].Count()];
+                    for (int j = 0; j < input[i].Count(); j++)
+                    {
+                        norm_input[i][j] = (input[i][j] - minInput) / (maxInput - minInput);
+                    }
+                    norm_ideal[i] = new double[1];
+                    norm_ideal[i][0] = (ideal[i][0] - minOutput) / (maxOutput - minOutput);
                 }
-                norm_ideal[i] = new double[1];
-                norm_ideal[i][0] = (ideal[i][0] - minOutput) / (maxOutput - minOutput);
+                Console.WriteLine("Znormalizowano");
+                Thread.Sleep(500);
             }
-            Console.WriteLine("Znormalizowano");
-            Thread.Sleep(500);
+            else
+            {
+                norm_input = input;
+                norm_ideal = ideal;
+            }
             INeuralDataSet dataset = CombineTrainingSet(norm_input, norm_ideal);
             return dataset;
         }
 
 
-        public static ITrain CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize)
+        public static ITrain CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize)
         {
             BasicNetwork network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
@@ -217,6 +276,7 @@ namespace FaceRecognition1.Helper
             int dlugosc = 1;
             bool bias = true;
             IActivationFunction ActivationFunction =  new ActivationSigmoid();
+            
             double learning = 0.01;
             double momentum = 0.4;
             //-----------------------------------------------------------------------------------------
@@ -226,7 +286,10 @@ namespace FaceRecognition1.Helper
             for (int i = 0; i < dlugosc; i++)
                 network.AddLayer(new BasicLayer(ActivationFunction, bias, szerokosc));
 
-            network.AddLayer(new BasicLayer(new ActivationLinear(), false, 1));
+            if(answersSize == 0 )
+                network.AddLayer(new BasicLayer(new ActivationLinear(), false, 1));
+            else
+                network.AddLayer(new BasicLayer(ActivationFunction, false, answersSize));
 
             network.Structure.FinalizeStructure();
             network.Reset();
