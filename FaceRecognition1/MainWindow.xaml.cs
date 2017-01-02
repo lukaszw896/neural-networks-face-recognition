@@ -96,8 +96,8 @@ namespace FaceRecognition1
         private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
         {
             int multipleOutput = 0;
-            bool test = true;
-            multipleOutput = InputHelper.ChooseMode(test, peopleNumber);
+            bool multiple = true;
+            multipleOutput = InputHelper.ChooseMode(multiple, peopleNumber);
 
             if (multipleOutput == 0)
             {

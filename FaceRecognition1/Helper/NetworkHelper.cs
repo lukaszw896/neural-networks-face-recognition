@@ -9,6 +9,7 @@ using Encog.Neural.NeuralData;
 using FaceRecognition1.Content;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -80,11 +81,13 @@ namespace FaceRecognition1.Helper
 
         public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize)
         {
-            int iteracje = 10000;
+            int iteracje = 30000;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
             ITrain Network = CreateNeuronNetwork(learningSet, inputSize, answersSize);
 
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             int iteracja = 0;
             do
             {
@@ -93,7 +96,7 @@ namespace FaceRecognition1.Helper
                 errors.Add(Network.Error);
                 iteracja++;
             } while ((iteracja < iteracje) && (Network.Error > 0.01));
-
+            stopwatch.Stop();
 
             /// TUTAJ SIEC SIE TEORETYCZNIE NAUCZYLA
             /// TERAZ ZBIOR TESTOWY, WYNIKI
@@ -125,6 +128,7 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("Neural Network Results");
             double calculateError = CalculateFinalError(answers, testingSet, answersSize);
             Console.WriteLine("Error: " + calculateError + " %");
+            Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
             Console.WriteLine("FINISH");
             CreateErrorFile(errors);
 
