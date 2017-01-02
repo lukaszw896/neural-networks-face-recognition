@@ -106,5 +106,11 @@ namespace FaceRecognition1.Helper
             else MessageBox.Show("Nie wybrano pliku !");
             return faces;
         }
+        public static int ChooseMode(bool flag, int peopleCount)
+        {
+            if (flag == true)
+                return peopleCount;
+            return 0;
+        }
     }
 }
