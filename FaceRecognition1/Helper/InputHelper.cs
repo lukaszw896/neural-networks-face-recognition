@@ -103,6 +103,7 @@ namespace FaceRecognition1.Helper
                 fs.Close();
                 br.Close();
             }
+            else MessageBox.Show("Nie wybrano pliku !");
             return faces;
         }
     }

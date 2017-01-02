@@ -31,10 +31,15 @@ namespace FaceRecognition1.Helper
         {
             double picNum = 1.0;
             if (test == false)
+            {       
                 picNum = 2.0;
+            }
+            
+           double[][] neuralInput = new double[(int)(faces.Count * (1.0 / picNum))][];
 
-            double[][] neuralInput = new double[(int)(faces.Count * (1.0 / picNum))][];
             int counter = 0;
+            
+       
             for (int i = 0; i < faces.Count(); i += (int)picNum)
             {
                 neuralInput[counter] = new double[faces[i].features.Count];
@@ -43,6 +48,8 @@ namespace FaceRecognition1.Helper
                     neuralInput[counter][j] = (double)faces[i].features[j];
                 }
                 counter++;
+
+                
             }
             return neuralInput;
         }
@@ -51,22 +58,26 @@ namespace FaceRecognition1.Helper
         {
             double picNum = 1.0;
             if (test == false)
+            {
                 picNum = 2.0;
+            }
 
             double[][] neuralOutput = new double[(int)(faces.Count * (1.0 / picNum))][];
             int counter = 0;
+         
             for (int i = 0; i < faces.Count(); i += (int)picNum)
             {
                 neuralOutput[counter] = new double[1];
                 neuralOutput[counter][0] = (double)faces[i].networkIndex;
                 counter++;
+
             }
             return neuralOutput;
         }
 
         public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize)
         {
-            int iteracje = 3000;
+            int iteracje = 30000;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
             ITrain Network = CreateNeuronNetwork(learningSet, inputSize);
@@ -76,6 +87,7 @@ namespace FaceRecognition1.Helper
             {
                 Network.Iteration();
                 Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
+                if(iteracja>50)
                 errors.Add(Network.Error);
                 iteracja++;
             } while ((iteracja < iteracje) && (Network.Error > 0.0005));
@@ -213,8 +225,8 @@ namespace FaceRecognition1.Helper
             BasicNetwork network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
 
-            int szerokosc = inputSize;
-            int dlugosc = 1;
+            int szerokosc = inputSize ;
+            int dlugosc =1;
             bool bias = true;
             IActivationFunction ActivationFunction =  new ActivationSigmoid();
             double learning = 0.01;
@@ -225,7 +237,7 @@ namespace FaceRecognition1.Helper
 
             for (int i = 0; i < dlugosc; i++)
                 network.AddLayer(new BasicLayer(ActivationFunction, bias, szerokosc));
-
+            
             network.AddLayer(new BasicLayer(new ActivationLinear(), false, 1));
 
             network.Structure.FinalizeStructure();
