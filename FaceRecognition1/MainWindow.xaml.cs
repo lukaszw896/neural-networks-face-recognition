@@ -20,6 +20,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Encog.Neural.NeuralData;
 using Encog.Neural.Data.Basic;
+using Encog.Neural.Activation;
 
 
 namespace FaceRecognition1
@@ -29,6 +30,8 @@ namespace FaceRecognition1
     /// </summary>
     public partial class MainWindow : Window
     {
+        IActivationFunction ActivationFunction { get; set; }
+        public InputClass inputData;
         public int Image ;
         public List<Face> faces;
         public int peopleNumber;
@@ -37,7 +40,16 @@ namespace FaceRecognition1
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
             FSDK.InitializeLibrary(); 
             InitializeComponent();
-            faces = new List<Face>();         
+            faces = new List<Face>();
+            InitialSettings();
+        }
+
+        public void InitialSettings()
+        {
+            CBAktywacje.SelectedIndex = 2;
+            CBObciazenie.SelectedIndex = 0;
+            CBSets.SelectedIndex = 0;
+            CBLastLayer.SelectedIndex = 0;
         }
 
         private void Load_Pic_Click(object sender, RoutedEventArgs e)
@@ -95,37 +107,74 @@ namespace FaceRecognition1
 
         private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
         {
-            int multipleOutput = 0;
-            bool multiple = true;
-            multipleOutput = InputHelper.ChooseMode(multiple, peopleNumber);
-
-            if (multipleOutput == 0)
+            inputData = new InputClass();
+            if (inputData.ValidateInput(TBLayers.Text, TBNeuronsInLayer.Text, ActivationFunction, CBObciazenie.SelectedIndex,
+                TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, CBLastLayer.SelectedIndex, CBSets.SelectedIndex, peopleNumber) == false)
             {
-                Console.WriteLine("Szykuje dane zbioru uczacego");
-                double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false);
-                double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput);
-                double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
-                double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput);
-                INeuralDataSet learningSet, testingSet;
-
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput,0);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput,0);
-
-                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput);
+                return;
             }
             else
             {
-                Console.WriteLine("Szykuje dane zbioru uczacego");
-                double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false);
-                double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput);
-                double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true);
-                double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput);
-                INeuralDataSet learningSet, testingSet;
+                LEnumber.Content = "---";
+                TEnumber.Content = "---";
+                Pnumber.Content = "---";
+                Tnumber.Content = "---";
+                PerformCalculation();
+            }
+        }
 
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput,1);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput,1);
+        public void PerformCalculation()
+        {
+            int multipleOutput = 0;
+            multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, peopleNumber);
 
-                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput);
+            Console.WriteLine("Szykuje dane zbioru uczacego");
+            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
+            double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
+            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
+            double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+            INeuralDataSet learningSet, testingSet;
+
+            if (multipleOutput == 0)
+            {
+                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 0);
+                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 0);
+            }
+            else
+            {
+                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 1);
+                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
+            }
+
+            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
+
+            LEnumber.Content = inputData.learningError.ToString();
+            TEnumber.Content = inputData.testingError.ToString();
+            Pnumber.Content = inputData.peopleNumber.ToString();
+            Tnumber.Content = inputData.timeElapsed.ToString();
+
+        }
+        private void CBAktywacje_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ComboBoxItem typeItem = (ComboBoxItem)CBAktywacje.SelectedItem;
+            string value = typeItem.Content.ToString();
+            switch (value)
+            {
+                case "Linear":
+                    ActivationFunction = new ActivationLinear();
+                    break;
+                case "LOG":
+                    ActivationFunction = new ActivationLOG();
+                    break;
+                case "Sigmoid":
+                    ActivationFunction = new ActivationSigmoid();
+                    break;
+                case "SIN":
+                    ActivationFunction = new ActivationSIN();
+                    break;
+                case "TANH":
+                    ActivationFunction = new ActivationTANH();
+                    break;
             }
         }
     }

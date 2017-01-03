@@ -28,63 +28,105 @@ namespace FaceRecognition1.Helper
             return new BasicNeuralDataSet(dane, odpowiedzi);
         }
 
-        public static double[][] CreateLearningInputDataSet(List<Face>faces, bool test)
+        public static double[][] CreateLearningInputDataSet(List<Face>faces, bool test, bool rozlacznosc)
         {
             double picNum = 1.0;
-            if (test == false)
+            if (test == false || rozlacznosc == true)
                 picNum = 2.0;
 
             double[][] neuralInput = new double[(int)(faces.Count * (1.0 / picNum))][];
             int counter = 0;
-            for (int i = 0; i < faces.Count(); i += (int)picNum)
+            if (rozlacznosc == true && test == true )
             {
-                neuralInput[counter] = new double[faces[i].features.Count];
-                for (int j = 0; j < faces[i].features.Count; j++)
+                for (int i = 1; i < faces.Count(); i += (int)picNum)
                 {
-                    neuralInput[counter][j] = (double)faces[i].features[j];
+                    neuralInput[counter] = new double[faces[i].features.Count];
+                    for (int j = 0; j < faces[i].features.Count; j++)
+                    {
+                        neuralInput[counter][j] = (double)faces[i].features[j];
+                    }
+                    counter++;
                 }
-                counter++;
+            }
+            else
+            {
+                for (int i = 0; i < faces.Count(); i += (int)picNum)
+                {
+                    neuralInput[counter] = new double[faces[i].features.Count];
+                    for (int j = 0; j < faces[i].features.Count; j++)
+                    {
+                        neuralInput[counter][j] = (double)faces[i].features[j];
+                    }
+                    counter++;
+                }
             }
             return neuralInput;
         }
 
-        public static double[][] CreateLearningOutputDataSet(List<Face> faces, bool test, int outputSize)
+        public static double[][] CreateLearningOutputDataSet(List<Face> faces, bool test, int outputSize, bool rozlacznosc)
         {
             double picNum = 1.0;
-            if (test == false)
+            if (test == false || rozlacznosc == true)
                 picNum = 2.0;
 
             double[][] neuralOutput = new double[(int)(faces.Count * (1.0 / picNum))][];
             int counter = 0;
-            for (int i = 0; i < faces.Count(); i += (int)picNum)
+            if (rozlacznosc == true && test == true)
             {
-                if (outputSize == 0)
+                for (int i = 1; i < faces.Count(); i += (int)picNum)
                 {
-                    neuralOutput[counter] = new double[1];
-                    neuralOutput[counter][0] = (double)faces[i].networkIndex;
-                }
-                else
-                {
-                    neuralOutput[counter] = new double[outputSize];
-                    for (int j = 0; j < outputSize; j++)
+                    if (outputSize == 0)
                     {
-                        if(j ==faces[i].networkIndex)
-                            neuralOutput[counter][j] = 1.0;
+                        neuralOutput[counter] = new double[1];
+                        neuralOutput[counter][0] = (double)faces[i].networkIndex;
+                    }
+                    else
+                    {
+                        neuralOutput[counter] = new double[outputSize];
+                        for (int j = 0; j < outputSize; j++)
+                        {
+                            if (j == faces[i].networkIndex)
+                                neuralOutput[counter][j] = 1.0;
+                            else
+                                neuralOutput[counter][j] = 0.0;
+                        }
+                    }
+                    counter++;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < faces.Count(); i += (int)picNum)
+                    {
+                        if (outputSize == 0)
+                        {
+                            neuralOutput[counter] = new double[1];
+                            neuralOutput[counter][0] = (double)faces[i].networkIndex;
+                        }
                         else
-                            neuralOutput[counter][j] = 0.0;
+                        {
+                            neuralOutput[counter] = new double[outputSize];
+                            for (int j = 0; j < outputSize; j++)
+                            {
+                                if (j == faces[i].networkIndex)
+                                    neuralOutput[counter][j] = 1.0;
+                                else
+                                    neuralOutput[counter][j] = 0.0;
+                            }
+                        }
+                        counter++;
                     }
                 }
-                counter++;
-            }
+            
             return neuralOutput;
         }
 
-        public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize)
+        public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData)
         {
-            int iteracje = 30000;
+            int iteracje = inputData.iterations;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
-            ITrain Network = CreateNeuronNetwork(learningSet, inputSize, answersSize);
+            ITrain Network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -95,7 +137,7 @@ namespace FaceRecognition1.Helper
                 Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
                 errors.Add(Network.Error);
                 iteracja++;
-            } while ((iteracja < iteracje) && (Network.Error > 0.01));
+            } while ((iteracja < iteracje) && (Network.Error > 0.0001) && (Network.Error < 10000));
             stopwatch.Stop();
 
             /// TUTAJ SIEC SIE TEORETYCZNIE NAUCZYLA
@@ -130,6 +172,10 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("Error: " + calculateError + " %");
             Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
             Console.WriteLine("FINISH");
+
+            inputData.learningError = errors[errors.Count - 1].ToString().Substring(0, 4) + " %";
+            inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
+            inputData.timeElapsed = stopwatch.Elapsed.Hours + "h " + stopwatch.Elapsed.Minutes + "min " + stopwatch.Elapsed.Seconds + "sec";
             CreateErrorFile(errors);
 
         }
@@ -271,18 +317,18 @@ namespace FaceRecognition1.Helper
         }
 
 
-        public static ITrain CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize)
+        public static ITrain CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize, InputClass inputData)
         {
             BasicNetwork network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
 
-            int szerokosc = inputSize;
-            int dlugosc = 1;
-            bool bias = true;
-            IActivationFunction ActivationFunction =  new ActivationSigmoid();
-            
-            double learning = 0.01;
-            double momentum = 0.4;
+            int szerokosc = inputData.hiddenNeurons;
+            int dlugosc = inputData.hiddenLayers;
+            bool bias = inputData.bias;
+            IActivationFunction ActivationFunction = inputData.activationFunction;
+
+            double learning = inputData.learningFactor;
+            double momentum = inputData.momentum;
             //-----------------------------------------------------------------------------------------
 
             network.AddLayer(new BasicLayer(ActivationFunction, bias, inputSize));
