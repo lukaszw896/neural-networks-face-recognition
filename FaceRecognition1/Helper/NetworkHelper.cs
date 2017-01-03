@@ -173,7 +173,7 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
             Console.WriteLine("FINISH");
 
-            inputData.learningError = errors[errors.Count - 1].ToString().Substring(0, 4) + " %";
+            inputData.learningError = (errors[errors.Count - 1]* 100).ToString().Substring(0, 4) + " %";
             inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
             inputData.timeElapsed = stopwatch.Elapsed.Hours + "h " + stopwatch.Elapsed.Minutes + "min " + stopwatch.Elapsed.Seconds + "sec";
             CreateErrorFile(errors);

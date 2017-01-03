@@ -99,18 +99,29 @@ namespace FaceRecognition1
         {
             faces.Clear();
             faces = InputHelper.LoadBinary();
-            int peopleCounter = 0;
-            peopleCounter = faces[faces.Count - 1].networkIndex + 1;
-            peopleNumber = peopleCounter;
-            Console.WriteLine("wczytano z binarki "+ faces.Count + " danych");
+            if (faces.Count >= 1)
+            {
+                int peopleCounter = 0;
+                peopleCounter = faces[faces.Count - 1].networkIndex + 1;
+                peopleNumber = peopleCounter;
+                Console.WriteLine("wczytano z binarki " + faces.Count + " danych");
+            }
         }
 
-        private void Ucz_Siec_Click(object sender, RoutedEventArgs e)
+        private async void Ucz_Siec_Click(object sender, RoutedEventArgs e)
         {
+            BlakWait.Visibility = Visibility.Visible;
             inputData = new InputClass();
+            if (faces.Count < 1 || faces == null)
+            {
+                MessageBox.Show("Error ! No data is loaded");
+                BlakWait.Visibility = Visibility.Collapsed;
+                return;
+            }
             if (inputData.ValidateInput(TBLayers.Text, TBNeuronsInLayer.Text, ActivationFunction, CBObciazenie.SelectedIndex,
                 TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, CBLastLayer.SelectedIndex, CBSets.SelectedIndex, peopleNumber) == false)
             {
+                BlakWait.Visibility = Visibility.Collapsed;
                 return;
             }
             else
@@ -119,40 +130,44 @@ namespace FaceRecognition1
                 TEnumber.Content = "---";
                 Pnumber.Content = "---";
                 Tnumber.Content = "---";
-                PerformCalculation();
+                await PerformCalculation();
+                LEnumber.Content = inputData.learningError.ToString();
+                TEnumber.Content = inputData.testingError.ToString();
+                Pnumber.Content = inputData.peopleNumber.ToString();
+                Tnumber.Content = inputData.timeElapsed.ToString();
             }
+            BlakWait.Visibility = Visibility.Collapsed;
         }
 
-        public void PerformCalculation()
+        public async Task PerformCalculation()
         {
-            int multipleOutput = 0;
-            multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, peopleNumber);
+            await Task.Run(() =>
+                {
+                    int multipleOutput = 0;
+                    multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, peopleNumber);
 
-            Console.WriteLine("Szykuje dane zbioru uczacego");
-            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
-            double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
-            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
-            double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
-            INeuralDataSet learningSet, testingSet;
+                    Console.WriteLine("Szykuje dane zbioru uczacego");
+                    double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
+                    double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
+                    double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
+                    double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+                    INeuralDataSet learningSet, testingSet;
 
-            if (multipleOutput == 0)
-            {
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 0);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 0);
-            }
-            else
-            {
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 1);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
-            }
+                    if (multipleOutput == 0)
+                    {
+                        learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 0);
+                        testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 0);
+                    }
+                    else
+                    {
+                        learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 1);
+                        testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
+                    }
 
-            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
+                    NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
 
-            LEnumber.Content = inputData.learningError.ToString();
-            TEnumber.Content = inputData.testingError.ToString();
-            Pnumber.Content = inputData.peopleNumber.ToString();
-            Tnumber.Content = inputData.timeElapsed.ToString();
-
+                });
+                
         }
         private void CBAktywacje_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
