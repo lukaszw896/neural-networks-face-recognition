@@ -1,4 +1,5 @@
-﻿using FaceRecognition1.Content;
+﻿using Encog.Neural.Networks.Training;
+using FaceRecognition1.Content;
 using Luxand;
 using Microsoft.Win32;
 using System;
@@ -9,6 +10,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Encog.Persist;
+using Encog.Neural.Networks.Training.Propagation.Back;
 
 namespace FaceRecognition1.Helper
 {
@@ -23,13 +26,13 @@ namespace FaceRecognition1.Helper
             int Image = 0;
             if (FSDK.LoadImageFromFile(ref Image, picDir) != FSDK.FSDKE_OK)
             {
-                Console.WriteLine("addSingleFace error !");
+                Console.WriteLine("addSingleFace error ! ###############################################");
             }
             FSDK.TFacePosition FacePosition = new FSDK.TFacePosition();
 
             if (FSDK.DetectFace(Image, ref FacePosition) != FSDK.FSDKE_OK)
             {
-                Console.WriteLine("addSingleFace error !");
+                Console.WriteLine("addSingleFace error ! ###############################################");
             }
 
             FSDK.TPoint[] FacialFeatures;
@@ -47,11 +50,11 @@ namespace FaceRecognition1.Helper
                 if (twarz.ValidateFace() == 1)
                     Console.WriteLine("Wygenerowano dane twarzy");
                 else
-                    Console.WriteLine("Blad twarzy " + twarz.name);
+                    Console.WriteLine("Blad twarzy " + twarz.name + " ###############################################");
             }
             else
             {
-                Console.WriteLine("addSingleFace error !");
+                Console.WriteLine("addSingleFace error ! ###############################################");
             }
             return twarz;
         }
@@ -112,5 +115,61 @@ namespace FaceRecognition1.Helper
                 return peopleCount;
             return 0;
         }
+        public static ITrain LoadNetwork()
+        {
+            ITrain network = null;
+            
+            OpenFileDialog open = new OpenFileDialog();
+            open.Title = "Open File...";
+            open.Filter = "Binary File (*.bin)|*.bin";
+            if (open.ShowDialog() == true)
+            {
+                FileStream fs = new FileStream(open.FileName, FileMode.Open);
+                BinaryFormatter bf = new BinaryFormatter();
+                BinaryReader br = new BinaryReader(fs);
+
+                var _varNetw = (ITrain)bf.Deserialize(fs);
+                network = _varNetw;
+
+                fs.Close();
+                br.Close();
+            }
+            else MessageBox.Show("Nie wybrano pliku !");
+            return network;
+        }
+
+        public static int SaveNetwork(ITrain learnedNetwork)
+        {
+            if (learnedNetwork == null)
+            {
+                MessageBox.Show("Nie ma sieci neuronowej do zapisania");
+                return -1;
+            }
+
+
+            SaveFileDialog save = new SaveFileDialog();
+            save.FileName = "NeuralNetwork"; // Default file name
+            save.DefaultExt = ".ser"; // Default file extension
+            save.Title = "Save As...";
+            save.Filter = "Serialized File (*.ser)|*.ser";
+            save.RestoreDirectory = true;
+            save.InitialDirectory = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+            Nullable<bool> result = save.ShowDialog();
+            if (result == true)
+            {
+                string filename = save.FileName;
+                Encog.Util.SerializeObject.Save(filename, learnedNetwork);
+                //FileStream fs = new FileStream(filename, FileMode.Create);
+                //BinaryFormatter bf = new BinaryFormatter();
+
+                //bf.Serialize(fs, learnedNetwork);
+                //BinaryWriter w = new BinaryWriter(fs);
+                //w.Close();
+                //fs.Close();
+            }
+            return 1;
+        }
+
     }
 }

@@ -22,6 +22,7 @@ namespace FaceRecognition1.Helper
     {
         public static double maxOutput = 0.0;
         public static double minOutput = 0.0;
+        
 
         public static INeuralDataSet CombineTrainingSet(double[][] dane, double[][] odpowiedzi)
         {
@@ -121,7 +122,7 @@ namespace FaceRecognition1.Helper
             return neuralOutput;
         }
 
-        public static void LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData)
+        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData)
         {
             int iteracje = inputData.iterations;
             List<double> errors = new List<double>();
@@ -144,6 +145,8 @@ namespace FaceRecognition1.Helper
             /// TERAZ ZBIOR TESTOWY, WYNIKI
             /// I WYKRES ERRORA
             /// 
+
+
 
             double[] neuralAnswer = new double[testingSize];
             int i = 0;
@@ -173,10 +176,18 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
             Console.WriteLine("FINISH");
 
-            inputData.learningError = (errors[errors.Count - 1]* 100).ToString().Substring(0, 4) + " %";
-            inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
+            if ((errors[errors.Count - 1] * 100).ToString().Length > 4)
+                inputData.learningError = (errors[errors.Count - 1]* 100).ToString().Substring(0, 4) + " %";
+            else
+                inputData.learningError = (errors[errors.Count - 1] * 100).ToString() + " %";
+            if (calculateError.ToString().Length >4 )
+                inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
+            else
+                inputData.testingError = calculateError.ToString() + " %";
             inputData.timeElapsed = stopwatch.Elapsed.Hours + "h " + stopwatch.Elapsed.Minutes + "min " + stopwatch.Elapsed.Seconds + "sec";
             CreateErrorFile(errors);
+
+            return Network;
 
         }
 
@@ -243,10 +254,10 @@ namespace FaceRecognition1.Helper
         public static int[] DenormaliseAnswers(double[] answers, int answersSize)
         {
             Console.WriteLine("Denormalizuje wynik...");
-            int[] denorm_answers = new int[answers.Length];
+            int[] denorm_answers = new int[answers.Count()];
             if (answersSize == 0)
             {
-                for (int i = 0; i < answers.Length; i++)
+                for (int i = 0; i < answers.Count(); i++)
                 {
                     denorm_answers[i] = (int)Math.Round(((answers[i] * (maxOutput - minOutput)) + minOutput));
                 }

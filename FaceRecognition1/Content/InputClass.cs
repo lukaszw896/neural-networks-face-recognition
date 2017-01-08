@@ -72,9 +72,9 @@ namespace FaceRecognition1.Content
             hiddenNeurons = _hiddenNeurons;
             activationFunction = _activationFunction;
             if (_bias == 0)
-                bias = true;
-            else
                 bias = false;
+            else
+                bias = true;
             iterations = _iterations;
             learningFactor = _learningFactor;
             momentum = _momentum;

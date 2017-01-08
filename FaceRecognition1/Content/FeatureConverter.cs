@@ -38,6 +38,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek dlugosci nosa do szerokosci ust
+        /// ????
         /// </summary>
         public static float NoseHeigh_MouthWidth(FSDK.TPoint[] FacialFeatures)
         {
@@ -59,6 +60,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek rozstawu oczu do szerokosci ust
+        /// ????
         /// </summary>
         public static float EyesSpacing_MouthWidth(FSDK.TPoint[] FacialFeatures)
         {
@@ -168,7 +170,7 @@ namespace FaceRecognition1.Content
 
         /// <summary>
         /// Stosunek szerokosci brwi do rozstawu brwi
-        /// Pewniak
+        /// ?????
         /// </summary>
         public static float EybrowWidth_EyebrowSpaces(FSDK.TPoint[] FacialFeatures)
         {
@@ -235,7 +237,50 @@ namespace FaceRecognition1.Content
             return (float)(faceHeigh / noseHeigh);
         }
 
+        /// <summary>
+        /// Wspolczynnik trapezowosci twarzy
+        /// Pewniak
+        /// </summary>
+        public static float TrapezoidFace(FSDK.TPoint[] FacialFeatures)
+        {
+            int faceTopLX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR14].x;
+            int faceTopLY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR14].y;
+            int faceTopRX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR15].x;
+            int faceTopRY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR15].y;
 
+            int faceBottomLX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR2].x;
+            int faceBottomLY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR2].y;
+            int faceBottomRX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR12].x;
+            int faceBottomRY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR12].y;
+
+
+            double topTrapezoid = Math.Sqrt(Math.Pow((double)(faceTopRX - faceTopLX), 2) + Math.Pow((double)(faceTopRY - faceTopLY), 2));
+            double lowTrapezoid = Math.Sqrt(Math.Pow((double)(faceBottomRX - faceBottomLX), 2) + Math.Pow((double)(faceBottomRY - faceBottomLY), 2));
+
+            return (float)(topTrapezoid / lowTrapezoid);
+        }
+        /// <summary>
+        /// Wspolczynnik trapezowosci szczeki
+        /// Pewniak
+        /// </summary>
+        public static float TrapezoidChin(FSDK.TPoint[] FacialFeatures)
+        {
+            int faceTopLX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR2].x;
+            int faceTopLY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR2].y;
+            int faceTopRX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR12].x;
+            int faceTopRY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_FACE_CONTOUR12].y;
+
+            int faceBottomLX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_LEFT].x;
+            int faceBottomLY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_LEFT].y;
+            int faceBottomRX = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_RIGHT].x;
+            int faceBottomRY = FacialFeatures[(int)FSDK.FacialFeatures.FSDKP_CHIN_RIGHT].y;
+
+
+            double topTrapezoid = Math.Sqrt(Math.Pow((double)(faceTopRX - faceTopLX), 2) + Math.Pow((double)(faceTopRY - faceTopLY), 2));
+            double lowTrapezoid = Math.Sqrt(Math.Pow((double)(faceBottomRX - faceBottomLX), 2) + Math.Pow((double)(faceBottomRY - faceBottomLY), 2));
+
+            return (float)(topTrapezoid / lowTrapezoid);
+        }
         //-------------------------------------------------------------------------------
 
         /// <summary>
@@ -255,6 +300,8 @@ namespace FaceRecognition1.Content
             neuralFeatures.Add(EybrowWidth_EyebrowSpaces(FacialFeatures));
             neuralFeatures.Add(FaceHeigh_FaceWidth(FacialFeatures));
             neuralFeatures.Add(FaceHeigh_NoseHeigh(FacialFeatures));
+            neuralFeatures.Add(TrapezoidFace(FacialFeatures));
+            neuralFeatures.Add(TrapezoidChin(FacialFeatures));
 
             return neuralFeatures;
         }

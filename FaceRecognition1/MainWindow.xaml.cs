@@ -21,6 +21,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Encog.Neural.NeuralData;
 using Encog.Neural.Data.Basic;
 using Encog.Neural.Activation;
+using Encog.Neural.Networks.Training;
 
 
 namespace FaceRecognition1
@@ -35,6 +36,7 @@ namespace FaceRecognition1
         public int Image ;
         public List<Face> faces;
         public int peopleNumber;
+        public ITrain learnedNetwork;
         public MainWindow()
         {
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
@@ -47,30 +49,36 @@ namespace FaceRecognition1
         public void InitialSettings()
         {
             CBAktywacje.SelectedIndex = 2;
-            CBObciazenie.SelectedIndex = 0;
+            CBObciazenie.SelectedIndex = 1;
             CBSets.SelectedIndex = 0;
             CBLastLayer.SelectedIndex = 0;
         }
 
-        private void Load_Pic_Click(object sender, RoutedEventArgs e)
+        private async void Load_Pic_Click(object sender, RoutedEventArgs e)
         {
+            BlakWait.Visibility = Visibility.Visible;
             faces.Clear();
+
             List<List<string>> imageList = ImageLoader.GetImages();
             int folderIndex = 0;
-            for(int i = 0 ; i < imageList.Count; i ++)
+            await Task.Run(() =>
             {
-                folderIndex = i;
-                List<string> pictures = imageList[i];
-                string folderName = imageList[i][0];
-                var folderNames = folderName.Split('\\').ToArray();
-                folderName = folderNames[folderNames.Count() - 2];
-                for(int j=0; j<pictures.Count; j++)
+                for (int i = 0; i < imageList.Count; i++)
                 {
-                    addSingleFace(pictures[j], pictures[j].Substring(pictures[j].LastIndexOf('\\') + 1), folderName, j, folderIndex);
+                    folderIndex = i;
+                    List<string> pictures = imageList[i];
+                    string folderName = imageList[i][0];
+                    var folderNames = folderName.Split('\\').ToArray();
+                    folderName = folderNames[folderNames.Count() - 2];
+                    for (int j = 0; j < pictures.Count; j++)
+                    {
+                        addSingleFace(pictures[j], pictures[j].Substring(pictures[j].LastIndexOf('\\') + 1), folderName, j, folderIndex);
+                    }
                 }
-            }
-            peopleNumber = imageList.Count;
+                peopleNumber = imageList.Count;
+            });
             Console.WriteLine("DONE" + faces.Count);
+            BlakWait.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -164,8 +172,8 @@ namespace FaceRecognition1
                         testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
                     }
 
-                    NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
-
+                    ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
+                    learnedNetwork = network;
                 });
                 
         }
@@ -191,6 +199,34 @@ namespace FaceRecognition1
                     ActivationFunction = new ActivationTANH();
                     break;
             }
+        }
+
+        private void SaveNetwork_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Stop ! Wersja demo nie obejmuje analizy wynikow");
+            return;
+            if (InputHelper.SaveNetwork(learnedNetwork) == 1)
+                Console.WriteLine("zapisano siec neuronowa do binarki");
+        }
+
+        private void TestNetwork_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Stop ! Wersja demo nie obejmuje analizy wynikow");
+            return;
+            AnswWindow window = new AnswWindow();
+            window.Show();
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            //TESTY
+            BlakWait.Visibility = Visibility.Visible;
+            await Task.Run(() =>
+                {
+                    TestHelper testperforamcje = new TestHelper();
+                    testperforamcje.PerformTests();
+                });
+            BlakWait.Visibility = Visibility.Collapsed;
         }
     }
 }
