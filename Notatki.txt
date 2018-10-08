@@ -1,0 +1,9 @@
+Pomysly na rozwiniecie projektu:
+- nauka najlepszego zbioru cech i ustawien sieci - poprzednim razem przeliczalismy wyniki dla róznych ustawien sieci (ilosc neuronów w warstawch ukrytych, ilosc warstw ukrytych, wspólczynnik nauki itd. Obliczenia wykonywane byly dla stalego zbioru cech o licznosci 12, który byl przez nas wybrany)
+- optymalizacja rozwiazania (zarówno pod wzgledem funkcjonalnosci jak i prezentacji)
+
+Prezentacja koncowa:
+- porównanie wyników uzyskanych poprzednio oraz teraz
+
+Problemy:
+- dostep do SDK, które bylo wykorzystywane do ekstrakcji cech twarzy ograniczony zostal do 14 dni. Potem koszt to 99$... Okres ten wykorzystam na ekstrakcje i zapisanie w wygodnym formacie wszystkich wyekstraktowanych cech (pewnie maks kilka godzin bedzie potrzebne).
