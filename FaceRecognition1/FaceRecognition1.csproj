@@ -83,6 +83,8 @@
     <Compile Include="Content\Face.cs" />
     <Compile Include="Content\FeatureConverter.cs" />
     <Compile Include="Content\InputClass.cs" />
+    <Compile Include="GeneticAlgorithm\DNA.cs" />
+    <Compile Include="GeneticAlgorithm\GeneticAlgorithm.cs" />
     <Compile Include="Helper\ImageLoader.cs" />
     <Compile Include="Helper\InputHelper.cs" />
     <Compile Include="Helper\NetworkHelper.cs" />
