@@ -22,7 +22,7 @@ using Encog.Neural.NeuralData;
 using Encog.Neural.Data.Basic;
 using Encog.Neural.Activation;
 using Encog.Neural.Networks.Training;
-
+using FaceRecognition1.Genetic;
 
 namespace FaceRecognition1
 {
@@ -33,14 +33,14 @@ namespace FaceRecognition1
     {
         IActivationFunction ActivationFunction { get; set; }
         public InputClass inputData;
-        public int Image ;
+        public int Image;
         public List<Face> faces;
         public int peopleNumber;
         public ITrain learnedNetwork;
         public MainWindow()
         {
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
-            FSDK.InitializeLibrary(); 
+            FSDK.InitializeLibrary();
             InitializeComponent();
             faces = new List<Face>();
             InitialSettings();
@@ -89,7 +89,7 @@ namespace FaceRecognition1
         {
             Face twarz = new Face();
             twarz = InputHelper.FacePreparation(picDir, _name, _folderName, _index, twarz, _folderIndex);
-                       
+
             faces.Add(twarz);
             return 1;
         }
@@ -175,7 +175,7 @@ namespace FaceRecognition1
                     ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
                     learnedNetwork = network;
                 });
-                
+
         }
         private void CBAktywacje_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -227,6 +227,35 @@ namespace FaceRecognition1
                     testperforamcje.PerformTests();
                 });
             BlakWait.Visibility = Visibility.Collapsed;
+        }
+
+        private void GeneticAlgorithmButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<Face> faces = new List<Face>();
+            String path = "C:\\Projects\\SIECI NEURONOWE 2019\\Twarze N 15x20\\ZdjeciaInput302.bin";
+            FileStream fs = new FileStream(path, FileMode.Open);
+            BinaryFormatter bf = new BinaryFormatter();
+            BinaryReader br = new BinaryReader(fs);
+
+            faces = (List<Face>)bf.Deserialize(fs);
+            int populationSize = 100;
+            double mutationRate = 0.35;
+            int elitism = 10;
+            var random = new System.Random();
+            var ga = new GeneticAlgorithm(populationSize, random, elitism, faces, mutationRate);
+            for (int i = 0; i < 300; i++)
+            {
+                ga.NewGeneration();
+                Console.WriteLine(100 - ga.BestFitness);
+                using (StreamWriter sw = new StreamWriter("C:\\Projects\\SIECI NEURONOWE 2019\\FaceRecognition1\\WYNIKI",true))
+                {
+                    sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
+                        "   HNeuronsCount: " + ga.BestSpecimen.HNeuronsCount + "   IsBiased" + ga.BestSpecimen.IsBiased +
+                        "   IterationsCount" + ga.BestSpecimen.IterationCount + "   LearningFactor: " + ga.BestSpecimen.LearningFactor +
+                        "  Momentum" + ga.BestSpecimen.Momentum);
+                    sw.WriteLine("-------------------------------------------------------------------------------------");
+                }
+            }
         }
     }
 }

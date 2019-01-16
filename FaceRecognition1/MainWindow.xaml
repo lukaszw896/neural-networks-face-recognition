@@ -71,10 +71,12 @@
                             <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Button Grid.Row="0" Grid.ColumnSpan="2" Content="Analyse Database" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Click" />
                         <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Save data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Save_Pic_Data_Click" />
                         <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Load data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Data_Click" />
+                        <Button Name="GeneticAlgorithmButton" Grid.Row="4" Grid.ColumnSpan="2" Content="Run genetic algorithm" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="GeneticAlgorithmButton_Click"/>
                         <Label Grid.Column="0" Grid.Row="3" Content="Learning / Testing Sets :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
                         <ComboBox Name ="CBSets" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center">
                             <ComboBoxItem Name="cbs1" >partialy excluded</ComboBoxItem>

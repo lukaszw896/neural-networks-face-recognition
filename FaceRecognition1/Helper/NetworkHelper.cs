@@ -22,14 +22,14 @@ namespace FaceRecognition1.Helper
     {
         public static double maxOutput = 0.0;
         public static double minOutput = 0.0;
-        
+
 
         public static INeuralDataSet CombineTrainingSet(double[][] dane, double[][] odpowiedzi)
         {
             return new BasicNeuralDataSet(dane, odpowiedzi);
         }
 
-        public static double[][] CreateLearningInputDataSet(List<Face>faces, bool test, bool rozlacznosc)
+        public static double[][] CreateLearningInputDataSet(List<Face> faces, bool test, bool rozlacznosc)
         {
             double picNum = 1.0;
             if (test == false || rozlacznosc == true)
@@ -37,7 +37,7 @@ namespace FaceRecognition1.Helper
 
             double[][] neuralInput = new double[(int)(faces.Count * (1.0 / picNum))][];
             int counter = 0;
-            if (rozlacznosc == true && test == true )
+            if (rozlacznosc == true && test == true)
             {
                 for (int i = 1; i < faces.Count(); i += (int)picNum)
                 {
@@ -98,27 +98,27 @@ namespace FaceRecognition1.Helper
             else
             {
                 for (int i = 0; i < faces.Count(); i += (int)picNum)
+                {
+                    if (outputSize == 0)
                     {
-                        if (outputSize == 0)
-                        {
-                            neuralOutput[counter] = new double[1];
-                            neuralOutput[counter][0] = (double)faces[i].networkIndex;
-                        }
-                        else
-                        {
-                            neuralOutput[counter] = new double[outputSize];
-                            for (int j = 0; j < outputSize; j++)
-                            {
-                                if (j == faces[i].networkIndex)
-                                    neuralOutput[counter][j] = 1.0;
-                                else
-                                    neuralOutput[counter][j] = 0.0;
-                            }
-                        }
-                        counter++;
+                        neuralOutput[counter] = new double[1];
+                        neuralOutput[counter][0] = (double)faces[i].networkIndex;
                     }
+                    else
+                    {
+                        neuralOutput[counter] = new double[outputSize];
+                        for (int j = 0; j < outputSize; j++)
+                        {
+                            if (j == faces[i].networkIndex)
+                                neuralOutput[counter][j] = 1.0;
+                            else
+                                neuralOutput[counter][j] = 0.0;
+                        }
+                    }
+                    counter++;
                 }
-            
+            }
+
             return neuralOutput;
         }
 
@@ -132,10 +132,23 @@ namespace FaceRecognition1.Helper
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             int iteracja = 0;
+            double currentError = 100.0;
+            int counter = 0;
             do
             {
                 Network.Iteration();
-                Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
+                //if (currentError - Network.Error > 0.0001)
+                //{
+                //    currentError = Network.Error;
+                //    counter = 0;
+                //}
+                //counter++;
+                //if (counter > 100)
+                //{
+                //    Console.WriteLine("Stop learning after 100 epoch without change greater than 0.5%");
+                //    break;
+                //}
+                //Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
                 errors.Add(Network.Error);
                 iteracja++;
             } while ((iteracja < iteracje) && (Network.Error > 0.0001) && (Network.Error < 10000));
@@ -169,7 +182,7 @@ namespace FaceRecognition1.Helper
                     neuralAnswer[i] = output[0];
                 i++;
             }
-            int[] answers = DenormaliseAnswers(neuralAnswer,answersSize); 
+            int[] answers = DenormaliseAnswers(neuralAnswer, answersSize);
             Console.WriteLine("Neural Network Results");
             double calculateError = CalculateFinalError(answers, testingSet, answersSize);
             Console.WriteLine("Error: " + calculateError + " %");
@@ -177,10 +190,10 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("FINISH");
 
             if ((errors[errors.Count - 1] * 100).ToString().Length > 4)
-                inputData.learningError = (errors[errors.Count - 1]* 100).ToString().Substring(0, 4) + " %";
+                inputData.learningError = (errors[errors.Count - 1] * 100).ToString().Substring(0, 4) + " %";
             else
                 inputData.learningError = (errors[errors.Count - 1] * 100).ToString() + " %";
-            if (calculateError.ToString().Length >4 )
+            if (calculateError.ToString().Length > 4)
                 inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
             else
                 inputData.testingError = calculateError.ToString() + " %";
@@ -241,13 +254,13 @@ namespace FaceRecognition1.Helper
             }
             Console.WriteLine("test");
             int[] idealAnswers = DenormaliseAnswers(neuralAnswers, answersSize);
-            for(int i = 0 ; i < answers.Count() ; i++)
+            for (int i = 0; i < answers.Count(); i++)
             {
                 if (idealAnswers[i] == answers[i])
                     properAnswer++;
             }
             double error = 100.0;
-            error = 100.0 - ((properAnswer * 100.0 )/ answers.Count()); 
+            error = 100.0 - ((properAnswer * 100.0) / answers.Count());
             return error;
         }
 
@@ -264,7 +277,7 @@ namespace FaceRecognition1.Helper
             }
             else
                 denorm_answers = ConvertDoubleArrayToIntArray(answers);
-            
+
             Console.WriteLine("Zdenormalizowano");
             return denorm_answers;
         }
@@ -347,7 +360,7 @@ namespace FaceRecognition1.Helper
             for (int i = 0; i < dlugosc; i++)
                 network.AddLayer(new BasicLayer(ActivationFunction, bias, szerokosc));
 
-            if(answersSize == 0 )
+            if (answersSize == 0)
                 network.AddLayer(new BasicLayer(new ActivationLinear(), false, 1));
             else
                 network.AddLayer(new BasicLayer(ActivationFunction, false, answersSize));

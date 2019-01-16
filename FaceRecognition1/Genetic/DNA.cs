@@ -7,18 +7,19 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FaceRecognition1.GeneticAlgorithm
+namespace FaceRecognition1.Genetic
 {
     public class DNA
     {
         //remember that passed random has to have double value in range 0-1
         private Random random;
         private readonly int[] hNeuronsCountBounds = { 2, 20 };
-        private readonly int[] hLayersCountBounds = { 1, 10 };
+        private readonly int[] hLayersCountBounds = { 1, 5 };
         private readonly int[] iterationCountBouns = { 50, 3000 };
-        private readonly double[] learningFactorBounds = { 0.01, 1.00 };
-        private readonly double[] momentumBounds = { 0.01, 0.5 };
+        private readonly double[] learningFactorBounds = { 0.005, 1.00 };
+        private readonly double[] momentumBounds = { 0.005, 0.5 };
         private List<Face> faces = null;
+        private double fitness = 0.0;
         Type type = null;
         public int HNeuronsCount { get; set; }
         public int HLayersCount { get; set; }
@@ -27,9 +28,21 @@ namespace FaceRecognition1.GeneticAlgorithm
         public double LearningFactor { get; set; }
         public double Momentum { get; set; }
         //TODO
-        public DNA(Random random)
+        public DNA(DNA original)
+        {
+            this.random = original.random;
+            this.faces = original.faces;
+            this.HNeuronsCount = original.HNeuronsCount;
+            this.HLayersCount = original.HLayersCount;
+            this.IsBiased = original.IsBiased;
+            this.IterationCount = original.IterationCount;
+            this.LearningFactor = original.LearningFactor;
+            this.Momentum = original.Momentum;
+        }
+        public DNA(Random random, List<Face> faces)
         {
             this.type = typeof(DNA);
+            this.faces = faces;
             this.random = random;
             foreach (PropertyInfo property in this.type.GetProperties())
             {
@@ -39,14 +52,15 @@ namespace FaceRecognition1.GeneticAlgorithm
         //TODO Save test info to file?
         public double CalculateFitness()
         {
-            var test = new SingleTest(15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount);
+            var test = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
             test.RunTest(faces);
-            return double.Parse(test.testError);
+            this.fitness = 100 - int.Parse(test.testError.Split('.')[0]);
+            return this.fitness;
         }
 
         public DNA Crossover(DNA secondParent)
         {
-            var child = new DNA(this.random);
+            var child = new DNA(this.random,this.faces);
             var type = typeof(DNA);
             foreach (PropertyInfo property in type.GetProperties())
             {
@@ -54,7 +68,7 @@ namespace FaceRecognition1.GeneticAlgorithm
             }
             return child;
         }
-        public void Mutate(float mutationRate)
+        public void Mutate(double mutationRate)
         {
             foreach (PropertyInfo property in this.type.GetProperties())
             {
@@ -86,6 +100,10 @@ namespace FaceRecognition1.GeneticAlgorithm
                 default:
                     throw new Exception("Given gene was not found during random gene value generation.");
             }
+        }
+        public double GetFitnessValue()
+        {
+            return this.fitness;
         }
     }
 }

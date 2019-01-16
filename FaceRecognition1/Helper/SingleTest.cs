@@ -21,12 +21,14 @@ namespace FaceRecognition1.Helper
         public string testError { get; set; }
         public string learnError { get; set; }
         public string time { get; set; }
+        public double LearningFactor { get; set; }
+        public double Momentum { get; set; }
 
         public SingleTest()
         {
 
         }
-        public SingleTest(int _ludzie, int _NNW, int _warstwy, int _obciaz, int _testSet, int _iteracje)
+        public SingleTest(int _ludzie, int _NNW, int _warstwy, int _obciaz, int _testSet, int _iteracje, double learningFactor = 0.01, double momentum = 0.4)
         {
             this.ludzie = _ludzie;
             this.neuronyNaWarstwe = _NNW;
@@ -34,18 +36,20 @@ namespace FaceRecognition1.Helper
             this.obciazenie = _obciaz;
             this.testSet = _testSet;
             this.iteracje = _iteracje;
+            this.LearningFactor = learningFactor;
+            this.Momentum = momentum;
         }
         public void RunTest(List<Face> faces)
         {
             InputClass inputData = new InputClass();
-            
-            inputData.ValidateInput((this.warstwy).ToString(), (this.neuronyNaWarstwe).ToString(), new ActivationSigmoid(), this.obciazenie,
-                (this.iteracje).ToString(), (0.01).ToString(), (0.4).ToString(), 0, this.testSet, this.ludzie);
 
-            PerformCalculation(inputData,faces);
+            inputData.ValidateInput((this.warstwy).ToString(), (this.neuronyNaWarstwe).ToString(), new ActivationSigmoid(), this.obciazenie,
+                (this.iteracje).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.testSet, this.ludzie);
+
+            PerformCalculation(inputData, faces);
             this.learnError = inputData.learningError.ToString();
             this.testError = inputData.testingError.ToString();
-            this.time = inputData.timeElapsed.ToString();           
+            this.time = inputData.timeElapsed.ToString();
         }
 
         public void PerformCalculation(InputClass inputData, List<Face> faces)
@@ -72,14 +76,14 @@ namespace FaceRecognition1.Helper
             }
 
             ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
-            
+
         }
         public string toText()
         {
             string tekst = "";
-            tekst = "ludzie:"+ this.ludzie.ToString() + "| warswty:"+ this.warstwy.ToString()+ "| neurony w warstwie:"+ this.neuronyNaWarstwe.ToString()+ "| bias :"+ this.obciazenie.ToString()
-              + "| zbiory rozlaczne:" + this.testSet.ToString() + "| iteracje:" + this.iteracje.ToString() + "##### Error learningowy:" + this.learnError.ToString() +"| Error testowy:" + this.testError.ToString() + "| time:" + this.time.ToString();
-      
+            tekst = "ludzie:" + this.ludzie.ToString() + "| warswty:" + this.warstwy.ToString() + "| neurony w warstwie:" + this.neuronyNaWarstwe.ToString() + "| bias :" + this.obciazenie.ToString()
+              + "| zbiory rozlaczne:" + this.testSet.ToString() + "| iteracje:" + this.iteracje.ToString() + "##### Error learningowy:" + this.learnError.ToString() + "| Error testowy:" + this.testError.ToString() + "| time:" + this.time.ToString();
+
             return tekst;
         }
     }
