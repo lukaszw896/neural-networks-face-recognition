@@ -66,7 +66,6 @@ namespace FaceRecognition1.Genetic
                     DNA child = parent1.Crossover(parent2);
 
                     child.Mutate(MutationRate);
-
                     newPopulation.Add(child);
                 }
                 else
@@ -74,11 +73,9 @@ namespace FaceRecognition1.Genetic
                     newPopulation.Add(new DNA(random, this.faces));
                 }
             }
-
             List<DNA> tmpList = Population;
             Population = newPopulation;
             newPopulation = tmpList;
-
             Generation++;
         }
         private DNA ChooseParent()
@@ -91,10 +88,8 @@ namespace FaceRecognition1.Genetic
                 {
                     return Population[i];
                 }
-
                 randomNumber -= Population[i].GetFitnessValue();
             }
-
             return null;
         }
 
@@ -102,17 +97,16 @@ namespace FaceRecognition1.Genetic
         {
             fitnessSum = 0;
             DNA best = Population[0];
-
+            Parallel.For(0, Population.Count, (x) => Population[x].CalculateFitness());
             for (int i = 0; i < Population.Count; i++)
             {
-                fitnessSum += Population[i].CalculateFitness();
+                fitnessSum += Population[i].GetFitnessValue();
 
                 if (Population[i].GetFitnessValue() > best.GetFitnessValue())
                 {
                     best = Population[i];
                 }
             }
-
             BestFitness = best.GetFitnessValue();
             this.BestSpecimen = new DNA(best);
         }

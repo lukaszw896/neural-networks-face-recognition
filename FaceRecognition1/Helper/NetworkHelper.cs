@@ -198,7 +198,7 @@ namespace FaceRecognition1.Helper
             else
                 inputData.testingError = calculateError.ToString() + " %";
             inputData.timeElapsed = stopwatch.Elapsed.Hours + "h " + stopwatch.Elapsed.Minutes + "min " + stopwatch.Elapsed.Seconds + "sec";
-            CreateErrorFile(errors);
+            //CreateErrorFile(errors);
 
             return Network;
 
