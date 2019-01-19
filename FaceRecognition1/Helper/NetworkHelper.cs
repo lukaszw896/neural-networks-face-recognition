@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FaceRecognition1.Helper
 {
@@ -29,7 +30,7 @@ namespace FaceRecognition1.Helper
             return new BasicNeuralDataSet(dane, odpowiedzi);
         }
 
-        public static double[][] CreateLearningInputDataSet(List<Face> faces, bool test, bool rozlacznosc)
+        public static double[][] CreateLearningInputDataSet(List<Face> faces, bool test, bool rozlacznosc, bool[] activeFeatures = null)
         {
             double picNum = 1.0;
             if (test == false || rozlacznosc == true)
@@ -44,8 +45,10 @@ namespace FaceRecognition1.Helper
                     neuralInput[counter] = new double[faces[i].features.Count];
                     for (int j = 0; j < faces[i].features.Count; j++)
                     {
-                        neuralInput[counter][j] = (double)faces[i].features[j];
+                            neuralInput[counter][j] = faces[i].features[j];
                     }
+                    if (activeFeatures != null)
+                        neuralInput[counter] = MultiplyDoubleVec(neuralInput[counter], activeFeatures);
                     counter++;
                 }
             }
@@ -62,6 +65,15 @@ namespace FaceRecognition1.Helper
                 }
             }
             return neuralInput;
+        }
+
+        private static double[] MultiplyDoubleVec(double[] features, bool[] isActive)
+        {
+            if (features.Length != isActive.Length)
+                throw new Exception("Multiplied vectors length cannot be different!");
+            for(int i = 0; i < features.Length; i++)
+                features[i] = isActive[0]? features[0] : 0;
+            return features;
         }
 
         public static double[][] CreateLearningOutputDataSet(List<Face> faces, bool test, int outputSize, bool rozlacznosc)

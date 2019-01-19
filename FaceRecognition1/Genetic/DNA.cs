@@ -27,6 +27,7 @@ namespace FaceRecognition1.Genetic
         public int IterationCount { get; set; }
         public double LearningFactor { get; set; }
         public double Momentum { get; set; }
+        public bool[] ActiveFeatures { get; set; }
         //TODO
         public DNA(DNA original)
         {
@@ -38,12 +39,15 @@ namespace FaceRecognition1.Genetic
             this.IterationCount = original.IterationCount;
             this.LearningFactor = original.LearningFactor;
             this.Momentum = original.Momentum;
+            this.ActiveFeatures = original.ActiveFeatures;
         }
         public DNA(Random random, List<Face> faces)
         {
             this.type = typeof(DNA);
             this.faces = faces;
             this.random = random;
+            //12 is a number of features...
+            this.ActiveFeatures = new bool[12];
             foreach (PropertyInfo property in this.type.GetProperties())
             {
                 property.SetValue(this, this.GetRandomGene(property));
@@ -79,10 +83,13 @@ namespace FaceRecognition1.Genetic
                     property.SetValue(this, this.GetRandomGene(property));
                 }
             }
+            for (int i = 0; i < ActiveFeatures.Length; i++)
+                if (this.random.NextDouble() < mutationRate)
+                    ActiveFeatures[i] = this.random.NextDouble() > 0.5 ? true : false;
         }
         //0 index lower bound
         //1 index upper bound
-        private object GetRandomGene(PropertyInfo property)
+        private object GetRandomGene(PropertyInfo property, bool isNewIndividual = false)
         {
             var rand = this.random.NextDouble();
             switch (property.Name)
@@ -99,6 +106,11 @@ namespace FaceRecognition1.Genetic
                     return learningFactorBounds[0] + (learningFactorBounds[1] - learningFactorBounds[0]) * rand;
                 case "Momentum":
                     return momentumBounds[0] + (momentumBounds[1] - momentumBounds[0]) * rand;
+                case "ActiveFeatures":
+                    if (isNewIndividual == true)
+                        for (int i = 0; i < ActiveFeatures.Length; i++)
+                            ActiveFeatures[i] = rand > 0.5 ? true : false;
+                    return ActiveFeatures;
                 default:
                     throw new Exception("Given gene was not found during random gene value generation.");
             }

@@ -80,7 +80,7 @@ namespace FaceRecognition1.Helper
                                         sw.WriteLine("-------------------------------------------------------------------------------------");
                                     }
                                     string tmpString = "";
-                                    tmpString = testy[i].toText();
+                                    tmpString = testy[i].ToText();
                                     sw.WriteLine(tmpString);
                                 }
                             }
@@ -100,7 +100,7 @@ namespace FaceRecognition1.Helper
                         sw.WriteLine("-------------------------------------------------------------------------------------");
                     }
                     string tmpString = "";
-                    tmpString = testy[i].toText();
+                    tmpString = testy[i].ToText();
                     sw.WriteLine(tmpString);
                     
                 }

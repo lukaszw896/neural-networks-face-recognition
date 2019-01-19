@@ -12,7 +12,7 @@ namespace FaceRecognition1.Helper
 {
     public class SingleTest
     {
-        public int ludzie { get; set; }
+        public int PeopleCount { get; set; }
         public int neuronyNaWarstwe { get; set; }
         public int warstwy { get; set; }
         public int obciazenie { get; set; }
@@ -28,9 +28,9 @@ namespace FaceRecognition1.Helper
         {
 
         }
-        public SingleTest(int _ludzie, int _NNW, int _warstwy, int _obciaz, int _testSet, int _iteracje, double learningFactor = 0.01, double momentum = 0.4)
+        public SingleTest(int peopleCount, int _NNW, int _warstwy, int _obciaz, int _testSet, int _iteracje, double learningFactor = 0.01, double momentum = 0.4)
         {
-            this.ludzie = _ludzie;
+            this.PeopleCount = peopleCount;
             this.neuronyNaWarstwe = _NNW;
             this.warstwy = _warstwy;
             this.obciazenie = _obciaz;
@@ -39,51 +39,40 @@ namespace FaceRecognition1.Helper
             this.LearningFactor = learningFactor;
             this.Momentum = momentum;
         }
-        public void RunTest(List<Face> faces)
+        public void RunTest(List<Face> faces, bool[] activeFeatures = null)
         {
             InputClass inputData = new InputClass();
-
             inputData.ValidateInput((this.warstwy).ToString(), (this.neuronyNaWarstwe).ToString(), new ActivationSigmoid(), this.obciazenie,
-                (this.iteracje).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.testSet, this.ludzie);
+                (this.iteracje).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.testSet, this.PeopleCount);
 
-            PerformCalculation(inputData, faces);
+            this.PerformCalculation(inputData, faces, activeFeatures);
             this.learnError = inputData.learningError.ToString();
             this.testError = inputData.testingError.ToString();
             this.time = inputData.timeElapsed.ToString();
         }
 
-        public void PerformCalculation(InputClass inputData, List<Face> faces)
+        public void PerformCalculation(InputClass inputData, List<Face> faces, bool[] activeFeatures = null)
         {
-            int multipleOutput = 0;
-            multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, this.ludzie);
+            int multipleOutput = inputData.multipleNeurons ? this.PeopleCount : 0;
 
             Console.WriteLine("Szykuje dane zbioru uczacego");
-            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
+            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting, activeFeatures);
             double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
-            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
+            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting, activeFeatures);
             double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
             INeuralDataSet learningSet, testingSet;
 
-            if (multipleOutput == 0)
-            {
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 0);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 0);
-            }
-            else
-            {
-                learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 1);
-                testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
-            }
+            learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, multipleOutput);
+            testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, multipleOutput);
 
             ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
 
         }
-        public string toText()
+        public string ToText()
         {
             string tekst = "";
-            tekst = "ludzie:" + this.ludzie.ToString() + "| warswty:" + this.warstwy.ToString() + "| neurony w warstwie:" + this.neuronyNaWarstwe.ToString() + "| bias :" + this.obciazenie.ToString()
+            tekst = "ludzie:" + this.PeopleCount.ToString() + "| warswty:" + this.warstwy.ToString() + "| neurony w warstwie:" + this.neuronyNaWarstwe.ToString() + "| bias :" + this.obciazenie.ToString()
               + "| zbiory rozlaczne:" + this.testSet.ToString() + "| iteracje:" + this.iteracje.ToString() + "##### Error learningowy:" + this.learnError.ToString() + "| Error testowy:" + this.testError.ToString() + "| time:" + this.time.ToString();
-
             return tekst;
         }
     }

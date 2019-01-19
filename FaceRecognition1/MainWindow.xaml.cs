@@ -252,7 +252,7 @@ namespace FaceRecognition1
                     sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
                         "   HNeuronsCount: " + ga.BestSpecimen.HNeuronsCount + "   IsBiased" + ga.BestSpecimen.IsBiased +
                         "   IterationsCount" + ga.BestSpecimen.IterationCount + "   LearningFactor: " + ga.BestSpecimen.LearningFactor +
-                        "  Momentum" + ga.BestSpecimen.Momentum);
+                        "  Momentum: " + ga.BestSpecimen.Momentum + " FeaturesVector: " + String.Concat(ga.BestSpecimen.ActiveFeatures));
                     sw.WriteLine("-------------------------------------------------------------------------------------");
                 }
             }
