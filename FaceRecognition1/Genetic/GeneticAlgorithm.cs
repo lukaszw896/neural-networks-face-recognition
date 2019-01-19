@@ -12,6 +12,7 @@ namespace FaceRecognition1.Genetic
         public List<DNA> Population { get; private set; }
         public int Generation { get; private set; }
         public double BestFitness { get; private set; }
+        private double[] IndividualTicketTable { get; set; }
         public DNA BestSpecimen;
         public int Elitism;
         public double MutationRate;
@@ -29,7 +30,8 @@ namespace FaceRecognition1.Genetic
             newPopulation = new List<DNA>(populationSize);
             this.random = random;
             this.faces = faces;
-
+            this.IndividualTicketTable = new double[populationSize];
+            this.GenerateTickets();
             for (int i = 0; i < populationSize; i++)
             {
                 Population.Add(new DNA(random, faces));
@@ -51,8 +53,9 @@ namespace FaceRecognition1.Genetic
                 Population.Sort(CompareDNA);
             }
             newPopulation.Clear();
-
-            for (int i = 0; i < Population.Count; i++)
+            if (numNewDNA != 0)
+                this.GenerateTickets();
+            for (int i = 0; i < finalCount; i++)
             {
                 if (i < Elitism && i < Population.Count)
                 {
@@ -80,17 +83,32 @@ namespace FaceRecognition1.Genetic
         }
         private DNA ChooseParent()
         {
-            double randomNumber = random.NextDouble() * fitnessSum;
+            var treshold = (Population.Count - 1) * (Population.Count - 1) * random.NextDouble();
+            int index = Population.Count - 3 - (int)Math.Ceiling(Math.Sqrt(treshold));
+            if (index < 0)
+                index = 0;
+            return Population[index];
+            //double randomNumber = random.NextDouble() * fitnessSum;
 
-            for (int i = 0; i < Population.Count; i++)
+            //for (int i = 0; i < Population.Count; i++)
+            //{
+            //    if (randomNumber < Population[i].GetFitnessValue())
+            //    {
+            //        return Population[i];
+            //    }
+            //    randomNumber -= Population[i].GetFitnessValue();
+            //}
+            //return null;
+        }
+        //More tickets -> more chance to become a parent
+        //Bigger fitness function -> more tickets
+        //If population count is stable than it can be run only once
+        private void GenerateTickets()
+        {
+            for (int i = 0; i < this.Population.Count; i++)
             {
-                if (randomNumber < Population[i].GetFitnessValue())
-                {
-                    return Population[i];
-                }
-                randomNumber -= Population[i].GetFitnessValue();
+                this.IndividualTicketTable[i] = (Population.Count - i) ^ 2;
             }
-            return null;
         }
 
         private void CalculateFitness()
@@ -118,17 +136,11 @@ namespace FaceRecognition1.Genetic
         private int CompareDNA(DNA a, DNA b)
         {
             if (a.GetFitnessValue() > b.GetFitnessValue())
-            {
                 return -1;
-            }
             else if (a.GetFitnessValue() < b.GetFitnessValue())
-            {
                 return 1;
-            }
             else
-            {
                 return 0;
-            }
         }
 
     }

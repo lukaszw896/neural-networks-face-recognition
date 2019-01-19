@@ -249,7 +249,7 @@ namespace FaceRecognition1
                 Console.WriteLine(100 - ga.BestFitness);
                 using (StreamWriter sw = new StreamWriter("C:\\Projects\\SIECI NEURONOWE 2019\\FaceRecognition1\\WYNIKI",true))
                 {
-                    sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
+                    sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   LearningError: " + ga.BestSpecimen.GetLearningFitnessValue() + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
                         "   HNeuronsCount: " + ga.BestSpecimen.HNeuronsCount + "   IsBiased" + ga.BestSpecimen.IsBiased +
                         "   IterationsCount" + ga.BestSpecimen.IterationCount + "   LearningFactor: " + ga.BestSpecimen.LearningFactor +
                         "  Momentum: " + ga.BestSpecimen.Momentum + " FeaturesVector: " + String.Concat(ga.BestSpecimen.ActiveFeatures));

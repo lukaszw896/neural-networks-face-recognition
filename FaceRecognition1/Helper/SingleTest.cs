@@ -13,14 +13,14 @@ namespace FaceRecognition1.Helper
     public class SingleTest
     {
         public int PeopleCount { get; set; }
-        public int neuronyNaWarstwe { get; set; }
-        public int warstwy { get; set; }
-        public int obciazenie { get; set; }
-        public int testSet { get; set; }
-        public int iteracje { get; set; }
-        public string testError { get; set; }
-        public string learnError { get; set; }
-        public string time { get; set; }
+        public int HiddenNeuronsCount { get; set; }
+        public int HiddenLayersCount { get; set; }
+        public int IsBiased { get; set; }
+        public int TestDataSet { get; set; }
+        public int IterationsCount { get; set; }
+        public double TestingError { get; set; }
+        public double LearningError { get; set; }
+        public TimeSpan ElapsedTime { get; set; }
         public double LearningFactor { get; set; }
         public double Momentum { get; set; }
 
@@ -28,27 +28,27 @@ namespace FaceRecognition1.Helper
         {
 
         }
-        public SingleTest(int peopleCount, int _NNW, int _warstwy, int _obciaz, int _testSet, int _iteracje, double learningFactor = 0.01, double momentum = 0.4)
+        public SingleTest(int peopleCount, int hiddenNeuronsCount, int hiddenLayersCount, int isBiased, int testDataSet, int iterationsCount, double learningFactor = 0.01, double momentum = 0.4)
         {
             this.PeopleCount = peopleCount;
-            this.neuronyNaWarstwe = _NNW;
-            this.warstwy = _warstwy;
-            this.obciazenie = _obciaz;
-            this.testSet = _testSet;
-            this.iteracje = _iteracje;
+            this.HiddenNeuronsCount = hiddenNeuronsCount;
+            this.HiddenLayersCount = hiddenLayersCount;
+            this.IsBiased = isBiased;
+            this.TestDataSet = testDataSet;
+            this.IterationsCount = iterationsCount;
             this.LearningFactor = learningFactor;
             this.Momentum = momentum;
         }
         public void RunTest(List<Face> faces, bool[] activeFeatures = null)
         {
             InputClass inputData = new InputClass();
-            inputData.ValidateInput((this.warstwy).ToString(), (this.neuronyNaWarstwe).ToString(), new ActivationSigmoid(), this.obciazenie,
-                (this.iteracje).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.testSet, this.PeopleCount);
+            inputData.ValidateInput((this.HiddenLayersCount).ToString(), (this.HiddenNeuronsCount).ToString(), new ActivationSigmoid(), this.IsBiased,
+                (this.IterationsCount).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.TestDataSet, this.PeopleCount);
 
             this.PerformCalculation(inputData, faces, activeFeatures);
-            this.learnError = inputData.LearningError.ToString();
-            this.testError = inputData.TestingError.ToString();
-            this.time = inputData.ElapsedTime.ToString();
+            this.LearningError = inputData.LearningError;
+            this.TestingError = inputData.TestingError;
+            this.ElapsedTime = inputData.ElapsedTime;
         }
 
         public void PerformCalculation(InputClass inputData, List<Face> faces, bool[] activeFeatures = null)
@@ -71,8 +71,8 @@ namespace FaceRecognition1.Helper
         public string ToText()
         {
             string tekst = "";
-            tekst = "ludzie:" + this.PeopleCount.ToString() + "| warswty:" + this.warstwy.ToString() + "| neurony w warstwie:" + this.neuronyNaWarstwe.ToString() + "| bias :" + this.obciazenie.ToString()
-              + "| zbiory rozlaczne:" + this.testSet.ToString() + "| iteracje:" + this.iteracje.ToString() + "##### Error learningowy:" + this.learnError.ToString() + "| Error testowy:" + this.testError.ToString() + "| time:" + this.time.ToString();
+            tekst = "ludzie:" + this.PeopleCount.ToString() + "| warswty:" + this.HiddenLayersCount.ToString() + "| neurony w warstwie:" + this.HiddenNeuronsCount.ToString() + "| bias :" + this.IsBiased.ToString()
+              + "| zbiory rozlaczne:" + this.TestDataSet.ToString() + "| iteracje:" + this.IterationsCount.ToString() + "##### Error learningowy:" + this.LearningError.ToString() + "| Error testowy:" + this.TestingError.ToString() + "| time:" + this.ElapsedTime.ToString();
             return tekst;
         }
     }

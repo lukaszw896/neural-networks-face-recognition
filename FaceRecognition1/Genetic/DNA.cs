@@ -20,6 +20,7 @@ namespace FaceRecognition1.Genetic
         private readonly double[] momentumBounds = { 0.005, 0.5 };
         private List<Face> faces = null;
         private double fitness = 0.0;
+        private SingleTest neuralNetworkData;
         Type type = null;
         public int HNeuronsCount { get; set; }
         public int HLayersCount { get; set; }
@@ -57,9 +58,9 @@ namespace FaceRecognition1.Genetic
         public double CalculateFitness()
         {
             Console.WriteLine("Fitness calc START");
-            var test = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
-            test.RunTest(faces, this.ActiveFeatures);
-            this.fitness = 100 - int.Parse(test.testError.Split('.')[0]);
+            this.neuralNetworkData = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
+            this.neuralNetworkData.RunTest(faces, this.ActiveFeatures);
+            this.fitness = 100 - neuralNetworkData.TestingError;
             Console.WriteLine("Fitness calc FINISH");
             return this.fitness;
         }
@@ -70,7 +71,19 @@ namespace FaceRecognition1.Genetic
             var type = typeof(DNA);
             foreach (PropertyInfo property in type.GetProperties())
             {
-                property.SetValue(child, this.random.NextDouble() < 0.5 ? property.GetValue(this) : property.GetValue(secondParent));
+                if (property.Name == "ActiveFeatures")
+                {
+                    child.ActiveFeatures = (bool[])this.ActiveFeatures.Clone();
+                    for(int i = 0; i < this.ActiveFeatures.Count(); i++)
+                    {
+                        if (this.random.NextDouble() < 0.5)
+                            child.ActiveFeatures[i] = secondParent.ActiveFeatures[i];
+                    }
+                }
+                else
+                {
+                    property.SetValue(child, this.random.NextDouble() < 0.5 ? property.GetValue(this) : property.GetValue(secondParent));
+                }
             }
             return child;
         }
@@ -118,6 +131,10 @@ namespace FaceRecognition1.Genetic
         public double GetFitnessValue()
         {
             return this.fitness;
+        }
+        public double GetLearningFitnessValue()
+        {
+            return this.neuralNetworkData.LearningError;
         }
     }
 }

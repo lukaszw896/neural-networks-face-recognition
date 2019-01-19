@@ -19,10 +19,10 @@ namespace FaceRecognition1.Content
         public double Momentum { get; set; }
         public bool multipleNeurons { get; set; }
         public bool learningtesting { get; set; }
-        public string LearningError { get; set; }
-        public string TestingError { get; set; }
-        public string PeopleCount { get; set; }
-        public string ElapsedTime { get; set; }
+        public double LearningError { get; set; }
+        public double TestingError { get; set; }
+        public int PeopleCount { get; set; }
+        public TimeSpan ElapsedTime { get; set; }
 
         public InputClass()
         {
@@ -77,7 +77,7 @@ namespace FaceRecognition1.Content
             this.Momentum = _momentum;
             this.multipleNeurons = _multipleNeurons == 0 ? true : false;
             this.learningtesting = _learningtesting == 0 ? false : true;
-            this.PeopleCount = _peopleNumber.ToString();
+            this.PeopleCount = _peopleNumber;
             return isCorrect;
         }
     }

@@ -160,9 +160,9 @@ namespace FaceRecognition1.Helper
             /// I WYKRES ERRORA
             /// 
 
-            inputData.LearningError = GetNetworkTestError(network, learningSet, inputSize, testingSize, answersSize).ToString();
-            inputData.TestingError = GetNetworkTestError(network, testingSet, inputSize, testingSize, answersSize).ToString();
-            inputData.ElapsedTime = stopwatch.Elapsed.ToString();
+            inputData.LearningError = GetNetworkTestError(network, learningSet, inputSize, testingSize, answersSize);
+            inputData.TestingError = GetNetworkTestError(network, testingSet, inputSize, testingSize, answersSize);
+            inputData.ElapsedTime = stopwatch.Elapsed;
             Console.WriteLine("Learning error: " + inputData.LearningError + " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime);
             return network;
 
@@ -177,13 +177,13 @@ namespace FaceRecognition1.Helper
                 INeuralData output = network.Network.Compute(pair.Input);
                 if (answersSize != 0)
                 {
-                    double small = 0.50;
+                    double small = 0.0;
                     for (int r = 0; r < answersSize; r++)
                     {
-                        if ((double)(output[r]) >= small)
+                        if (output[r] >= small)
                         {
-                            neuralAnswer[i] = (double)r;
-                            small = (double)(output[r]);
+                            neuralAnswer[i] = r;
+                            small = output[r];
                         }
                     }
                 }
