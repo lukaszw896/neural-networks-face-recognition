@@ -41,6 +41,7 @@ namespace FaceRecognition1.Genetic
             this.LearningFactor = original.LearningFactor;
             this.Momentum = original.Momentum;
             this.ActiveFeatures = original.ActiveFeatures;
+            this.neuralNetworkData = original.neuralNetworkData;
         }
         public DNA(Random random, List<Face> faces)
         {
