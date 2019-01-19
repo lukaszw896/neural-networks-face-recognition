@@ -97,6 +97,10 @@ namespace FaceRecognition1.Genetic
         {
             fitnessSum = 0;
             DNA best = Population[0];
+            //for(int i=0;i< Population.Count; i++)
+            //{
+            //    Population[i].CalculateFitness();
+            //}
             Parallel.For(0, Population.Count, (x) => Population[x].CalculateFitness());
             for (int i = 0; i < Population.Count; i++)
             {

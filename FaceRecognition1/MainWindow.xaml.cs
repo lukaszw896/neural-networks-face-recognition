@@ -139,10 +139,10 @@ namespace FaceRecognition1
                 Pnumber.Content = "---";
                 Tnumber.Content = "---";
                 await PerformCalculation();
-                LEnumber.Content = inputData.learningError.ToString();
-                TEnumber.Content = inputData.testingError.ToString();
-                Pnumber.Content = inputData.peopleNumber.ToString();
-                Tnumber.Content = inputData.timeElapsed.ToString();
+                LEnumber.Content = inputData.LearningError.ToString();
+                TEnumber.Content = inputData.TestingError.ToString();
+                Pnumber.Content = inputData.PeopleCount.ToString();
+                Tnumber.Content = inputData.ElapsedTime.ToString();
             }
             BlakWait.Visibility = Visibility.Collapsed;
         }
@@ -238,10 +238,10 @@ namespace FaceRecognition1
             BinaryReader br = new BinaryReader(fs);
 
             faces = (List<Face>)bf.Deserialize(fs);
-            int populationSize = 100;
-            double mutationRate = 0.4;
+            int populationSize = 80;
+            double mutationRate = 0.25;
             int elitism = 4;
-            var random = new System.Random();
+            var random = new Random();
             var ga = new GeneticAlgorithm(populationSize, random, elitism, faces, mutationRate);
             for (int i = 0; i < 300; i++)
             {

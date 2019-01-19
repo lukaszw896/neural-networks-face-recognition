@@ -50,7 +50,7 @@ namespace FaceRecognition1.Genetic
             this.ActiveFeatures = new bool[12];
             foreach (PropertyInfo property in this.type.GetProperties())
             {
-                property.SetValue(this, this.GetRandomGene(property));
+                property.SetValue(this, this.GetRandomGene(property,true));
             }
         }
         //TODO Save test info to file?
@@ -58,7 +58,7 @@ namespace FaceRecognition1.Genetic
         {
             Console.WriteLine("Fitness calc START");
             var test = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
-            test.RunTest(faces);
+            test.RunTest(faces, this.ActiveFeatures);
             this.fitness = 100 - int.Parse(test.testError.Split('.')[0]);
             Console.WriteLine("Fitness calc FINISH");
             return this.fitness;
@@ -109,7 +109,7 @@ namespace FaceRecognition1.Genetic
                 case "ActiveFeatures":
                     if (isNewIndividual == true)
                         for (int i = 0; i < ActiveFeatures.Length; i++)
-                            ActiveFeatures[i] = rand > 0.5 ? true : false;
+                            ActiveFeatures[i] = this.random.NextDouble() > 0.5 ? true : false;
                     return ActiveFeatures;
                 default:
                     throw new Exception("Given gene was not found during random gene value generation.");

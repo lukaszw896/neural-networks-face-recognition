@@ -61,6 +61,8 @@ namespace FaceRecognition1.Helper
                     {
                         neuralInput[counter][j] = (double)faces[i].features[j];
                     }
+                    if (activeFeatures != null)
+                        neuralInput[counter] = MultiplyDoubleVec(neuralInput[counter], activeFeatures);
                     counter++;
                 }
             }
@@ -72,7 +74,7 @@ namespace FaceRecognition1.Helper
             if (features.Length != isActive.Length)
                 throw new Exception("Multiplied vectors length cannot be different!");
             for(int i = 0; i < features.Length; i++)
-                features[i] = isActive[0]? features[0] : 0;
+                features[i] = isActive[i] ? features[i] : 0;
             return features;
         }
 
@@ -136,34 +138,21 @@ namespace FaceRecognition1.Helper
 
         public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData)
         {
-            int iteracje = inputData.iterations;
+            int iteracje = inputData.IterationsCount;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
-            ITrain Network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData);
+            var network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             int iteracja = 0;
-            double currentError = 100.0;
-            int counter = 0;
             do
             {
-                Network.Iteration();
-                //if (currentError - Network.Error > 0.0001)
-                //{
-                //    currentError = Network.Error;
-                //    counter = 0;
-                //}
-                //counter++;
-                //if (counter > 100)
-                //{
-                //    Console.WriteLine("Stop learning after 100 epoch without change greater than 0.5%");
-                //    break;
-                //}
+                network.Iteration();
                 //Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
-                errors.Add(Network.Error);
+                errors.Add(network.Error);
                 iteracja++;
-            } while ((iteracja < iteracje) && (Network.Error > 0.0001) && (Network.Error < 10000));
+            } while ((iteracja < iteracje) && (network.Error > 0.0001) && (network.Error < 10000));
             stopwatch.Stop();
 
             /// TUTAJ SIEC SIE TEORETYCZNIE NAUCZYLA
@@ -171,13 +160,21 @@ namespace FaceRecognition1.Helper
             /// I WYKRES ERRORA
             /// 
 
+            inputData.LearningError = GetNetworkTestError(network, learningSet, inputSize, testingSize, answersSize).ToString();
+            inputData.TestingError = GetNetworkTestError(network, testingSet, inputSize, testingSize, answersSize).ToString();
+            inputData.ElapsedTime = stopwatch.Elapsed.ToString();
+            Console.WriteLine("Learning error: " + inputData.LearningError + " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime);
+            return network;
 
+        }
 
+        public static double GetNetworkTestError(ITrain network, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize)
+        {
             double[] neuralAnswer = new double[testingSize];
             int i = 0;
             foreach (INeuralDataPair pair in testingSet)
             {
-                INeuralData output = Network.Network.Compute(pair.Input);
+                INeuralData output = network.Network.Compute(pair.Input);
                 if (answersSize != 0)
                 {
                     double small = 0.50;
@@ -197,23 +194,7 @@ namespace FaceRecognition1.Helper
             int[] answers = DenormaliseAnswers(neuralAnswer, answersSize);
             Console.WriteLine("Neural Network Results");
             double calculateError = CalculateFinalError(answers, testingSet, answersSize);
-            Console.WriteLine("Error: " + calculateError + " %");
-            Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
-            Console.WriteLine("FINISH");
-
-            if ((errors[errors.Count - 1] * 100).ToString().Length > 4)
-                inputData.learningError = (errors[errors.Count - 1] * 100).ToString().Substring(0, 4) + " %";
-            else
-                inputData.learningError = (errors[errors.Count - 1] * 100).ToString() + " %";
-            if (calculateError.ToString().Length > 4)
-                inputData.testingError = calculateError.ToString().Substring(0, 4) + " %";
-            else
-                inputData.testingError = calculateError.ToString() + " %";
-            inputData.timeElapsed = stopwatch.Elapsed.Hours + "h " + stopwatch.Elapsed.Minutes + "min " + stopwatch.Elapsed.Seconds + "sec";
-            //CreateErrorFile(errors);
-
-            return Network;
-
+            return calculateError;
         }
 
         public static void CreateErrorFile(List<double> errors)
@@ -358,13 +339,13 @@ namespace FaceRecognition1.Helper
             BasicNetwork network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
 
-            int szerokosc = inputData.hiddenNeurons;
-            int dlugosc = inputData.hiddenLayers;
-            bool bias = inputData.bias;
-            IActivationFunction ActivationFunction = inputData.activationFunction;
+            int szerokosc = inputData.HiddenNeurons;
+            int dlugosc = inputData.HiddenLayers;
+            bool bias = inputData.Bias;
+            IActivationFunction ActivationFunction = inputData.ActivationFunction;
 
-            double learning = inputData.learningFactor;
-            double momentum = inputData.momentum;
+            double learning = inputData.LearningFactor;
+            double momentum = inputData.Momentum;
             //-----------------------------------------------------------------------------------------
 
             network.AddLayer(new BasicLayer(ActivationFunction, bias, inputSize));

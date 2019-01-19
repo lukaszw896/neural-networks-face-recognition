@@ -10,19 +10,19 @@ namespace FaceRecognition1.Content
 {
     public class InputClass
     {
-        public int hiddenLayers { get; set; }
-        public int hiddenNeurons { get; set; }
-        public IActivationFunction activationFunction { get; set; }
-        public bool bias { get; set; }
-        public int iterations { get; set; }
-        public double learningFactor { get; set; }
-        public double momentum { get; set; }
+        public int HiddenLayers { get; set; }
+        public int HiddenNeurons { get; set; }
+        public IActivationFunction ActivationFunction { get; set; }
+        public bool Bias { get; set; }
+        public int IterationsCount { get; set; }
+        public double LearningFactor { get; set; }
+        public double Momentum { get; set; }
         public bool multipleNeurons { get; set; }
         public bool learningtesting { get; set; }
-        public string learningError { get; set; }
-        public string testingError { get; set; }
-        public string peopleNumber { get; set; }
-        public string timeElapsed { get; set; }
+        public string LearningError { get; set; }
+        public string TestingError { get; set; }
+        public string PeopleCount { get; set; }
+        public string ElapsedTime { get; set; }
 
         public InputClass()
         {
@@ -68,27 +68,16 @@ namespace FaceRecognition1.Content
                 MessageBox.Show("Error ! Momentm has to be from range [0; 0,5]");
                 return false;
             }
-            hiddenLayers = _hiddenLayers;
-            hiddenNeurons = _hiddenNeurons;
-            activationFunction = _activationFunction;
-            if (_bias == 0)
-                bias = false;
-            else
-                bias = true;
-            iterations = _iterations;
-            learningFactor = _learningFactor;
-            momentum = _momentum;
-            if (_multipleNeurons == 0)
-                multipleNeurons = true;
-            else
-                multipleNeurons = false;
-            
-            if (_learningtesting == 0)
-                learningtesting = false;
-            else
-                learningtesting = true;
-
-            peopleNumber = _peopleNumber.ToString();
+            this.HiddenLayers = _hiddenLayers;
+            this.HiddenNeurons = _hiddenNeurons;
+            this.ActivationFunction = _activationFunction;
+            this.Bias = _bias == 0 ? false : true;
+            this.IterationsCount = _iterations;
+            this.LearningFactor = _learningFactor;
+            this.Momentum = _momentum;
+            this.multipleNeurons = _multipleNeurons == 0 ? true : false;
+            this.learningtesting = _learningtesting == 0 ? false : true;
+            this.PeopleCount = _peopleNumber.ToString();
             return isCorrect;
         }
     }

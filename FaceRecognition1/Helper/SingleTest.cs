@@ -46,9 +46,9 @@ namespace FaceRecognition1.Helper
                 (this.iteracje).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.testSet, this.PeopleCount);
 
             this.PerformCalculation(inputData, faces, activeFeatures);
-            this.learnError = inputData.learningError.ToString();
-            this.testError = inputData.testingError.ToString();
-            this.time = inputData.timeElapsed.ToString();
+            this.learnError = inputData.LearningError.ToString();
+            this.testError = inputData.TestingError.ToString();
+            this.time = inputData.ElapsedTime.ToString();
         }
 
         public void PerformCalculation(InputClass inputData, List<Face> faces, bool[] activeFeatures = null)
