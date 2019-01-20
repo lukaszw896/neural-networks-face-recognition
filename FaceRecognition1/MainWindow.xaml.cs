@@ -239,7 +239,7 @@ namespace FaceRecognition1
 
             faces = (List<Face>)bf.Deserialize(fs);
             int populationSize = 80;
-            double mutationRate = 0.25;
+            double mutationRate = 0.30;
             int elitism = 4;
             var random = new Random();
             var ga = new GeneticAlgorithm(populationSize, random, elitism, faces, mutationRate);

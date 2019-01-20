@@ -20,27 +20,28 @@ namespace FaceRecognition1.Genetic
         private List<DNA> newPopulation;
         private Random random;
         private double fitnessSum;
+        private int populationSize;
 
         public GeneticAlgorithm(int populationSize, Random random, int elitism, List<Face> faces, double mutationRate = 0.01f)
         {
             Generation = 1;
             Elitism = elitism;
             MutationRate = mutationRate;
+            this.populationSize = populationSize;
             Population = new List<DNA>(populationSize);
             newPopulation = new List<DNA>(populationSize);
             this.random = random;
             this.faces = faces;
             this.IndividualTicketTable = new double[populationSize];
-            this.GenerateTickets();
             for (int i = 0; i < populationSize; i++)
             {
                 Population.Add(new DNA(random, faces));
             }
         }
 
-        public void NewGeneration(int numNewDNA = 0, bool crossoverNewDNA = false)
+        public void NewGeneration(int numNewDNA = 5, bool crossoverNewDNA = true)
         {
-            int finalCount = Population.Count + numNewDNA;
+            int finalCount = populationSize + numNewDNA;
 
             if (finalCount <= 0)
             {
@@ -53,8 +54,6 @@ namespace FaceRecognition1.Genetic
                 Population.Sort(CompareDNA);
             }
             newPopulation.Clear();
-            if (numNewDNA != 0)
-                this.GenerateTickets();
             for (int i = 0; i < finalCount; i++)
             {
                 if (i < Elitism && i < Population.Count)
@@ -88,27 +87,6 @@ namespace FaceRecognition1.Genetic
             if (index < 0)
                 index = 0;
             return Population[index];
-            //double randomNumber = random.NextDouble() * fitnessSum;
-
-            //for (int i = 0; i < Population.Count; i++)
-            //{
-            //    if (randomNumber < Population[i].GetFitnessValue())
-            //    {
-            //        return Population[i];
-            //    }
-            //    randomNumber -= Population[i].GetFitnessValue();
-            //}
-            //return null;
-        }
-        //More tickets -> more chance to become a parent
-        //Bigger fitness function -> more tickets
-        //If population count is stable than it can be run only once
-        private void GenerateTickets()
-        {
-            for (int i = 0; i < this.Population.Count; i++)
-            {
-                this.IndividualTicketTable[i] = (Population.Count - i) ^ 2;
-            }
         }
 
         private void CalculateFitness()
