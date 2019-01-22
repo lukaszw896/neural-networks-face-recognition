@@ -58,8 +58,10 @@ namespace FaceRecognition1.Helper
             Console.WriteLine("Szykuje dane zbioru uczacego");
             double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting, activeFeatures);
             double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
+
             double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting, activeFeatures);
             double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+
             INeuralDataSet learningSet, testingSet;
 
             learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, multipleOutput);

@@ -136,7 +136,7 @@ namespace FaceRecognition1.Helper
             return neuralOutput;
         }
 
-        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData)
+        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null,int validationInputSize = 0)
         {
             int iteracje = inputData.IterationsCount;
             List<double> errors = new List<double>();
@@ -145,10 +145,17 @@ namespace FaceRecognition1.Helper
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
+            double lowestValidationError = 100.0;
+            double currentValidationError = 100.0;
+            int growingErrorCount = 0;
             int iteracja = 0;
             do
             {
                 network.Iteration();
+                if(validationSet != null)
+                {
+                    currentValidationError = GetNetworkTestError(network, validationSet, validationInputSize, answersSize);
+                }
                 //Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
                 errors.Add(network.Error);
                 iteracja++;
@@ -160,15 +167,20 @@ namespace FaceRecognition1.Helper
             /// I WYKRES ERRORA
             /// 
 
-            inputData.LearningError = GetNetworkTestError(network, learningSet, inputSize, testingSize, answersSize);
-            inputData.TestingError = GetNetworkTestError(network, testingSet, inputSize, testingSize, answersSize);
+            inputData.LearningError = GetNetworkTestError(network, learningSet,  testingSize, answersSize);
+            inputData.TestingError = GetNetworkTestError(network, testingSet, testingSize, answersSize);
             inputData.ElapsedTime = stopwatch.Elapsed;
-            Console.WriteLine("Learning error: " + inputData.LearningError + " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime);
+            inputData.IterationsCount = iteracja;
+            inputData.Errors = errors;
+
+            Console.WriteLine("Learning error: " + inputData.LearningError + 
+                validationSet != null ? (" ValidationError: " + currentValidationError) : "" +
+                " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime + " IterCount: " + iteracja );
             return network;
 
         }
 
-        public static double GetNetworkTestError(ITrain network, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize)
+        public static double GetNetworkTestError(ITrain network, INeuralDataSet testingSet, int testingSize, int answersSize)
         {
             double[] neuralAnswer = new double[testingSize];
             int i = 0;

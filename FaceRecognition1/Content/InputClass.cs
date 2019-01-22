@@ -23,6 +23,7 @@ namespace FaceRecognition1.Content
         public double TestingError { get; set; }
         public int PeopleCount { get; set; }
         public TimeSpan ElapsedTime { get; set; }
+        public List<double> Errors { get; set; }
 
         public InputClass()
         {
