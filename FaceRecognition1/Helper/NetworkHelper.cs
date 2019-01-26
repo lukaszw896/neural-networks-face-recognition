@@ -1,4 +1,4 @@
-﻿using Encog.Neural.Activation;
+﻿using Encog.Engine.Network.Activation;
 using Encog.Neural.Data;
 using Encog.Neural.Data.Basic;
 using Encog.Neural.Networks;
@@ -156,7 +156,7 @@ namespace FaceRecognition1.Helper
                 {
                     currentValidationError = GetNetworkTestError(network, validationSet, validationInputSize, answersSize);
                 }
-                //Console.WriteLine("Epoch #" + iteracja + " Error:" + Network.Error);
+                Console.WriteLine("Epoch #" + iteracja + " Error:" + network.Error);
                 errors.Add(network.Error);
                 iteracja++;
             } while ((iteracja < iteracje) && (network.Error > 0.0001) && (network.Error < 10000));
@@ -180,13 +180,14 @@ namespace FaceRecognition1.Helper
 
         }
 
-        public static double GetNetworkTestError(ITrain network, INeuralDataSet testingSet, int testingSize, int answersSize)
+        public static double GetNetworkTestError(Backpropagation network, INeuralDataSet testingSet, int testingSize, int answersSize)
         {
             double[] neuralAnswer = new double[testingSize];
             int i = 0;
-            foreach (INeuralDataPair pair in testingSet)
+            foreach (var pair in testingSet)
             {
-                INeuralData output = network.Network.Compute(pair.Input);
+                double[] output = new double[answersSize];
+                network.Network.Flat.Compute(pair.Input,output);
                 if (answersSize != 0)
                 {
                     double small = 0.0;
@@ -239,19 +240,19 @@ namespace FaceRecognition1.Helper
             int j = 0;
             if (answersSize == 0)
             {
-                foreach (INeuralDataPair pair in testingSet)
+                foreach (var pair in testingSet)
                 {
-                    neuralAnswers[j] = pair.Ideal.Data[0];
+                    neuralAnswers[j] = pair.Ideal[0];
                     j++;
                 }
             }
             else
             {
-                foreach (INeuralDataPair pair in testingSet)
+                foreach (var pair in testingSet)
                 {
                     for (int r = 0; r < answersSize; r++)
                     {
-                        if ((double)(pair.Ideal.Data[r]) >= 0.66)
+                        if ((double)(pair.Ideal[r]) >= 0.66)
                             neuralAnswers[j] = (double)r;
                     }
                     j++;
@@ -346,9 +347,9 @@ namespace FaceRecognition1.Helper
         }
 
 
-        public static ITrain CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize, InputClass inputData)
+        public static Backpropagation CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize, InputClass inputData)
         {
-            BasicNetwork network = new BasicNetwork();
+            var network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
 
             int szerokosc = inputData.HiddenNeurons;
@@ -371,8 +372,8 @@ namespace FaceRecognition1.Helper
                 network.AddLayer(new BasicLayer(ActivationFunction, false, answersSize));
 
             network.Structure.FinalizeStructure();
-            network.Reset();
-            ITrain train = new Backpropagation(network, learningSet, learning, momentum);
+            network.Reset(324523);
+            var train = new Backpropagation(network, learningSet, learning, momentum);
             return train;
         }
     }

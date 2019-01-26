@@ -20,9 +20,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Encog.Neural.NeuralData;
 using Encog.Neural.Data.Basic;
-using Encog.Neural.Activation;
 using Encog.Neural.Networks.Training;
 using FaceRecognition1.Genetic;
+using Encog.Engine.Network.Activation;
 
 namespace FaceRecognition1
 {

@@ -1,4 +1,4 @@
-﻿using Encog.Neural.Activation;
+﻿using Encog.Engine.Network.Activation;
 using System;
 using System.Collections.Generic;
 using System.Linq;

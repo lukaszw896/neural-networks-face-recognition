@@ -1,4 +1,4 @@
-﻿using Encog.Neural.Activation;
+﻿using Encog.Engine.Network.Activation;
 using Encog.Neural.Networks.Training;
 using Encog.Neural.NeuralData;
 using FaceRecognition1.Content;
