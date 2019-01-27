@@ -282,7 +282,7 @@ namespace FaceRecognition1.Helper
                         validationSlope.Pop();
                     }
                 }
-                Console.WriteLine("Epoch #" + iteration + " Error:" + network.Error + " ValidationError: " + currentValidationError + " SlopeError: " + slopeAverage);
+                //Console.WriteLine("Epoch #" + iteration + " Error:" + network.Error + " ValidationError: " + currentValidationError + " SlopeError: " + slopeAverage);
                 errors.Add(network.Error);
                 iteration++;
             } while ((iteration < maxIterationCount) && (network.Error > 0.0001) && (network.Error < 10000));
@@ -332,7 +332,7 @@ namespace FaceRecognition1.Helper
                 i++;
             }
             int[] answers = DenormaliseAnswers(neuralAnswer, answersSize);
-            Console.WriteLine("Neural Network Results");
+            //Console.WriteLine("Neural Network Results");
             double calculateError = CalculateFinalError(answers, dataSet, answersSize);
             return calculateError;
         }
@@ -385,7 +385,7 @@ namespace FaceRecognition1.Helper
                     j++;
                 }
             }
-            Console.WriteLine("test");
+            //Console.WriteLine("test");
             int[] idealAnswers = DenormaliseAnswers(neuralAnswers, answersSize);
             for (int i = 0; i < answers.Count(); i++)
             {
@@ -399,7 +399,7 @@ namespace FaceRecognition1.Helper
 
         public static int[] DenormaliseAnswers(double[] answers, int answersSize)
         {
-            Console.WriteLine("Denormalizuje wynik...");
+            //Console.WriteLine("Denormalizuje wynik...");
             int[] denorm_answers = new int[answers.Count()];
             if (answersSize == 0)
             {
@@ -411,7 +411,7 @@ namespace FaceRecognition1.Helper
             else
                 denorm_answers = ConvertDoubleArrayToIntArray(answers);
 
-            Console.WriteLine("Zdenormalizowano");
+            //Console.WriteLine("Zdenormalizowano");
             return denorm_answers;
         }
 

@@ -230,7 +230,8 @@ namespace FaceRecognition1
 
         private void BtnGridSearch_Click(object sender, RoutedEventArgs e)
         {
-
+            var gs = new GridSearch();
+            gs.StartGridSearch();
         }
 
         private void BtnGeneticAlgorithm_Click(object sender, RoutedEventArgs e)

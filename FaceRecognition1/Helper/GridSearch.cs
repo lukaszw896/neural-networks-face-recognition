@@ -1,12 +1,76 @@
-﻿using System;
+﻿using Encog.Engine.Network.Activation;
+using Encog.Neural.Networks.Training;
+using FaceRecognition1.Content;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FaceRecognition1.Helper
 {
-    class GridSearch
+    public class GridSearch
     {
+        private readonly double[] _learningRate = { 0.001, 0.003, 0.01 };
+        private readonly double[] _momentum = { 0.001, 0.003, 0.01 };
+        private readonly int[] _hiddenLayersCount = { 1, 2, 3 };
+        private readonly int[] _neuronsCount = { 30, 50, 70, 90, 110 };
+        private readonly bool[] _bias = { true, false };
+
+        public void StartGridSearch()
+        {
+            var faces = GetFacialData();
+            PerformCalculations(faces);
+        }
+        private List<List<Face>> GetFacialData()
+        {
+            var path = "C:\\Projects\\SIECI NEURONOWE 2019\\Twarze N 15x20\\ZdjeciaInput302.bin";
+            var fs = new FileStream(path, FileMode.Open);
+            var bf = new BinaryFormatter();
+            var br = new BinaryReader(fs);
+            var faces = (List<Face>)bf.Deserialize(fs);
+            return InputHelper.TransformIntoListOfLists(faces);
+        }
+
+        private void PerformCalculations(List<List<Face>> faces)
+        {
+            var date = DateTime.Now.ToString("yyyy-dd-M-HH-mm-ss");
+            var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12);
+            var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15);
+
+            var networkValidationInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Validation, 12);
+            var networkValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Validation, 15);
+
+            var networkTestingInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Testing, 12);
+            var networkTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Testing, 15);
+
+            var learningSet = NetworkHelper.NormaliseDataSet(networkLearningInput, networkLearningOutput);
+            var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
+            var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
+
+            foreach (var learningRate in _learningRate)
+            {
+                foreach (var momentum in _momentum)
+                {
+                    foreach (var hiddenLayersCount in _hiddenLayersCount)
+                    {
+                        foreach (var neuronsCount in _neuronsCount)
+                        {
+                            foreach (var bias in _bias)
+                            {
+                                var inputData = new InputClass(learningRate, momentum, hiddenLayersCount, neuronsCount, bias, 15, new ActivationSigmoid(),40000);
+                                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), 15, inputData, validationSet);
+                                Task.Factory.StartNew(() =>
+                                XmlFileWriter.WriteDataToFile("GridSearch"+ date+".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
+                                    learningRate, momentum, hiddenLayersCount, neuronsCount, bias)
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

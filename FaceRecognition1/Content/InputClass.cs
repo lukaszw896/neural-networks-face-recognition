@@ -28,6 +28,17 @@ namespace FaceRecognition1.Content
         {
 
         }
+        public InputClass(double learningRate, double momentum, int hiddenLayersCount, int hiddenNeuronsCount, bool bias, int peopleCount, IActivationFunction activationFunction, int iterationsCount )
+        {
+            this.LearningFactor = learningRate;
+            this.Momentum = momentum;
+            this.HiddenLayers = hiddenLayersCount;
+            this.HiddenNeurons = hiddenNeuronsCount;
+            this.Bias = bias;
+            this.PeopleCount = peopleCount;
+            this.ActivationFunction = activationFunction;
+            this.IterationsCount = iterationsCount;
+        }
         public bool ValidateInput(string TBLayers, string TBNeuronsInLayer, IActivationFunction _activationFunction,
             int _bias, string TBIteracje, string TBWspUczenia, string TBWspBezwladnosci, int _multipleNeurons, int _learningtesting, int _peopleNumber)
         {
