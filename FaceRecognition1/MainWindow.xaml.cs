@@ -228,7 +228,12 @@ namespace FaceRecognition1
             BlakWait.Visibility = Visibility.Collapsed;
         }
 
-        private void GeneticAlgorithmButton_Click(object sender, RoutedEventArgs e)
+        private void BtnGridSearch_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnGeneticAlgorithm_Click(object sender, RoutedEventArgs e)
         {
             List<Face> faces = new List<Face>();
             String path = "C:\\Projects\\SIECI NEURONOWE 2019\\Twarze N 15x20\\ZdjeciaInput302.bin";
