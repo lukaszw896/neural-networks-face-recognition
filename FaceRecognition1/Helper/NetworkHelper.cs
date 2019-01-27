@@ -25,6 +25,21 @@ namespace FaceRecognition1.Helper
         Validation = 1,
         Testing = 2
     }
+    class BestEpochErrors
+    {
+        public double LearningError { get; set; }
+        public double ValidationError { get; set; }
+        public double TestError { get; set; }
+        public int Iteration { get; set; }
+
+        public BestEpochErrors()
+        {
+            LearningError = 100.0;
+            ValidationError = 100.0;
+            TestError = 100.0;
+            Iteration = 0;
+        }
+    }
     public class NetworkHelper
     {
         public static double maxOutput = 0.0;
@@ -35,7 +50,7 @@ namespace FaceRecognition1.Helper
         {
             return new BasicNeuralDataSet(dane, odpowiedzi);
         }
-        public static double[][] CreateNetworkInputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType,int featuresCount, bool[] activeFeatures = null)
+        public static double[][] CreateNetworkInputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType, int featuresCount, bool[] activeFeatures = null)
         {
             var dataSetCount = GetDataSetCount(faceList, learnPhotosCount, validationPhotosCount, dataSetType);
             double[][] networkInput = new double[dataSetCount][];
@@ -227,28 +242,50 @@ namespace FaceRecognition1.Helper
 
         public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int validationInputSize = 0)
         {
-            int iteracje = inputData.IterationsCount;
+            int maxIterationCount = inputData.IterationsCount;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
             var network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            double lowestValidationError = 100.0;
+            var bestEpoch = new BestEpochErrors();
             double currentValidationError = 100.0;
-            int growingErrorCount = 0;
-            int iteracja = 0;
+            int iteration = 0;
+            double slopeAverage = 0.0;
+            Stack<double> validationSlope = new Stack<double>();
             do
             {
                 network.Iteration();
-                //if (validationSet != null)
-                //{
-                //    currentValidationError = GetNetworkTestError(network, validationSet, answersSize);
-                //}
-                //Console.WriteLine("Epoch #" + iteracja + " Error:" + network.Error);
+                if (validationSet != null)
+                {
+                    currentValidationError = GetNetworkDataSetError(network, validationSet, answersSize);
+                    if (currentValidationError < bestEpoch.ValidationError)
+                    {
+                        bestEpoch.ValidationError = currentValidationError;
+                        bestEpoch.LearningError = GetNetworkDataSetError(network, learningSet, answersSize);
+                        bestEpoch.TestError = GetNetworkDataSetError(network, testingSet, answersSize);
+                        bestEpoch.Iteration = iteration;
+                        validationSlope.Clear();
+                    }
+                    else
+                    {
+                        validationSlope.Push(currentValidationError - bestEpoch.ValidationError);
+                    }
+                    if (validationSlope.Count > 100)
+                    {
+                        slopeAverage = validationSlope.Average();
+                        if (slopeAverage > 10.0)
+                        {
+                            break;
+                        }
+                        validationSlope.Pop();
+                    }
+                }
+                Console.WriteLine("Epoch #" + iteration + " Error:" + network.Error + " ValidationError: " + currentValidationError + " SlopeError: " + slopeAverage);
                 errors.Add(network.Error);
-                iteracja++;
-            } while ((iteracja < iteracje) && (network.Error > 0.0001) && (network.Error < 10000));
+                iteration++;
+            } while ((iteration < maxIterationCount) && (network.Error > 0.0001) && (network.Error < 10000));
             stopwatch.Stop();
 
             /// TUTAJ SIEC SIE TEORETYCZNIE NAUCZYLA
@@ -256,24 +293,25 @@ namespace FaceRecognition1.Helper
             /// I WYKRES ERRORA
             /// 
 
-            inputData.LearningError = GetNetworkTestError(network, learningSet, answersSize);
-            inputData.TestingError = GetNetworkTestError(network, testingSet, answersSize);
+            inputData.LearningError = bestEpoch.LearningError;
+            inputData.ValidationError = bestEpoch.ValidationError;
+            inputData.TestingError = bestEpoch.TestError;
             inputData.ElapsedTime = stopwatch.Elapsed;
-            inputData.IterationsCount = iteracja;
+            inputData.IterationsCount = bestEpoch.Iteration;
             inputData.Errors = errors;
 
             Console.WriteLine("Learning error: " + inputData.LearningError +
-                validationSet != null ? (" ValidationError: " + currentValidationError) : "" +
-                " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime + " IterCount: " + iteracja);
+                validationSet != null ? (" ValidationError: " + bestEpoch.ValidationError) : "" +
+                " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime + " IterCount: " + iteration);
             return network;
 
         }
 
-        public static double GetNetworkTestError(Backpropagation network, INeuralDataSet testingSet, int answersSize)
+        public static double GetNetworkDataSetError(Backpropagation network, INeuralDataSet dataSet, int answersSize)
         {
-            double[] neuralAnswer = new double[testingSet.Count];
+            double[] neuralAnswer = new double[dataSet.Count];
             int i = 0;
-            foreach (var pair in testingSet)
+            foreach (var pair in dataSet)
             {
                 double[] output = new double[answersSize];
                 network.Network.Flat.Compute(pair.Input, output);
@@ -295,7 +333,7 @@ namespace FaceRecognition1.Helper
             }
             int[] answers = DenormaliseAnswers(neuralAnswer, answersSize);
             Console.WriteLine("Neural Network Results");
-            double calculateError = CalculateFinalError(answers, testingSet, answersSize);
+            double calculateError = CalculateFinalError(answers, dataSet, answersSize);
             return calculateError;
         }
 
@@ -382,55 +420,13 @@ namespace FaceRecognition1.Helper
             return adDoubleArray.Select(d => (int)d).ToArray();
         }
 
-        public static INeuralDataSet NormaliseDataSet(double[][] input, double[][] ideal, int multipleOutput)
+        public static INeuralDataSet NormaliseDataSet(double[][] input, double[][] ideal)
         {
             Console.WriteLine("Normalizuje...");
-            double[][] norm_input = new double[input.Length][];
-            double[][] norm_ideal = new double[input.Length][];
-
-            if (multipleOutput == 0)
-            {
-                double maxInput = input[0][0], minInput = input[0][0];
-                maxOutput = ideal[0][0];
-                minOutput = ideal[0][0];
-
-                for (int i = 0; i < input.Length; i++)
-                {
-                    for (int j = 0; j < input[i].Count(); j++)
-                    {
-                        if (input[i][j] < minInput)
-                            minInput = input[i][j];
-
-                        if (input[i][j] > maxInput)
-                            maxInput = input[i][j];
-                    }
-
-                    if (ideal[i][0] < minOutput)
-                        minOutput = ideal[i][0];
-
-                    if (ideal[i][0] > maxOutput)
-                        maxOutput = ideal[i][0];
-                }
-
-
-                for (int i = 0; i < input.Length; i++)
-                {
-                    norm_input[i] = new double[input[i].Count()];
-                    for (int j = 0; j < input[i].Count(); j++)
-                    {
-                        norm_input[i][j] = (input[i][j] - minInput) / (maxInput - minInput);
-                    }
-                    norm_ideal[i] = new double[1];
-                    norm_ideal[i][0] = (ideal[i][0] - minOutput) / (maxOutput - minOutput);
-                }
-                Console.WriteLine("Znormalizowano");
-                Thread.Sleep(500);
-            }
-            else
-            {
-                norm_input = input;
-                norm_ideal = ideal;
-            }
+            var norm_input = new double[input.Length][];
+            var norm_ideal = new double[input.Length][];
+            norm_input = input;
+            norm_ideal = ideal;
             INeuralDataSet dataset = CombineTrainingSet(norm_input, norm_ideal);
             return dataset;
         }

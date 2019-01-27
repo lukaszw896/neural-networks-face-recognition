@@ -89,6 +89,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="2*"/>
+                            <RowDefinition Height="2*"/>
                             <RowDefinition Height="3*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
@@ -98,18 +99,26 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <Button Content="RUN NETWORK" Grid.ColumnSpan="4" Grid.Row="2" HorizontalAlignment="Stretch" Margin="5,5,5,2" VerticalAlignment="Stretch" Click="Ucz_Siec_Click" />
-                        <Button Content="Save Network" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Margin="2,2,2,2" VerticalAlignment="Bottom" Click="SaveNetwork_Click" />
-                        <Button Content="Test Network" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Right" Margin="0,2,2,0" VerticalAlignment="Top" Click="TestNetwork_Click" />
-                        <Label Grid.Column="0" Grid.Row="0" Content="Learning Error :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Name="LEnumber" Grid.Column="1" Grid.Row="0" Content="---" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Grid.Column="0" Grid.Row="1" Content="Testing Error :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Name="TEnumber" Grid.Column="1" Grid.Row="1" Content="---" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Grid.Column="2" Grid.Row="0" Content="People Number :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Name="Pnumber" Grid.Column="3" Grid.Row="0" Content="---" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Name="Tnumber" Grid.Column="3" Grid.Row="1" Content="---" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Label Grid.Column="2" Grid.Row="1" Content="Time Elapsed :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <Button Content="test" HorizontalAlignment="Center" Margin="1,1,1,1" Grid.Row="3" VerticalAlignment="Center" Click="Button_Click"/>
+                        <Label Grid.Column="0" Grid.Row="0" Content="Learning Error :"/>
+                        <Label Name="lblLearningError" Grid.Column="1" Grid.Row="0" Content="---" />
+                        <Label Grid.Column="2" Grid.Row="0" Content="People Number :" />
+                        <Label Name="lblPeopleCount" Grid.Column="3" Grid.Row="0" Content="---" />
+
+                        <Label Grid.Column="0" Grid.Row="1" Content="Testing Error :"/>
+                        <Label Name="lblTestingError" Grid.Column="1" Grid.Row="1" Content="---"/>
+                        <Label Grid.Column="2" Grid.Row="1" Content="Time Elapsed :"/>
+                        <Label Name="lblTimeElapsed" Grid.Column="3" Grid.Row="1" Content="---" />
+
+                        <Label Grid.Row="2">Validation Error:</Label>
+                        <Label Name="lblValidationError" Grid.Row="2" Grid.Column="1">...</Label>
+                        <Label Grid.Row="2" Grid.Column="2">Iterations</Label>
+                        <Label Name="lblIterationsCount" Grid.Row="2" Grid.Column="3">...</Label>
+                        
+                        <Button Content="RUN NETWORK" Grid.ColumnSpan="4" Grid.Row="3" Click="Ucz_Siec_Click" />
+                        <Button Content="Save Network" Grid.Column="3" Grid.Row="4"  Click="SaveNetwork_Click" />
+                        <Button Content="Test Network" Grid.Column="2" Grid.Row="4" Click="TestNetwork_Click" />
+
+                        <Button Content="test" HorizontalAlignment="Center" Margin="1,1,1,1" Grid.Row="4"/>
                     </Grid>
                 </GroupBox>
 

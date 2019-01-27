@@ -53,25 +53,21 @@ namespace FaceRecognition1.Helper
 
         public void PerformCalculation(InputClass inputData, List<List<Face>> faces, bool[] activeFeatures = null)
         {
-            int multipleOutput = inputData.multipleNeurons ? this.PeopleCount : 0;
-
             Console.WriteLine("Szykuje dane zbioru uczacego");
             var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12, activeFeatures);
             var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15, activeFeatures);
+
+            var networkValidationInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Validation, 12, activeFeatures);
+            var networkValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Validation, 15, activeFeatures);
+
             var networkTestingInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Testing, 12, activeFeatures);
             var networkTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Testing, 15, activeFeatures);
-            //double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting, activeFeatures);
-            //double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
 
-            //double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting, activeFeatures);
-            //double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+            var learningSet = NetworkHelper.NormaliseDataSet(networkLearningInput, networkLearningOutput);
+            var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
+            var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
-            INeuralDataSet learningSet, testingSet;
-
-            learningSet = NetworkHelper.NormaliseDataSet(networkLearningInput, networkLearningOutput, multipleOutput);
-            testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput, multipleOutput);
-
-            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), multipleOutput, inputData);
+            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), this.PeopleCount, inputData, validationSet);
 
         }
         public string ToText()

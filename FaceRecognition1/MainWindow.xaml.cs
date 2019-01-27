@@ -134,15 +134,19 @@ namespace FaceRecognition1
             }
             else
             {
-                LEnumber.Content = "---";
-                TEnumber.Content = "---";
-                Pnumber.Content = "---";
-                Tnumber.Content = "---";
+                lblLearningError.Content = "...";
+                lblTestingError.Content = "...";
+                lblPeopleCount.Content = "...";
+                lblTimeElapsed.Content = "...";
+                lblValidationError.Content = "...";
+                lblIterationsCount.Content = "...";
                 await PerformCalculation();
-                LEnumber.Content = inputData.LearningError.ToString();
-                TEnumber.Content = inputData.TestingError.ToString();
-                Pnumber.Content = inputData.PeopleCount.ToString();
-                Tnumber.Content = inputData.ElapsedTime.ToString();
+                lblLearningError.Content = inputData.LearningError;
+                lblTestingError.Content = inputData.TestingError;
+                lblPeopleCount.Content = inputData.PeopleCount;
+                lblTimeElapsed.Content = inputData.ElapsedTime.ToString();
+                lblValidationError.Content = inputData.ValidationError;
+                lblIterationsCount.Content = inputData.IterationsCount;
             }
             BlakWait.Visibility = Visibility.Collapsed;
         }
@@ -151,32 +155,23 @@ namespace FaceRecognition1
         {
             await Task.Run(() =>
                 {
-                    int multipleOutput = 0;
-                    multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, peopleNumber);
                     var sortedFaces = InputHelper.TransformIntoListOfLists(faces);
                     Console.WriteLine("Szykuje dane zbioru uczacego");
-                    //double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
-                    //double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
-                    //double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
-                    //double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+
                     var neuralLearningInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 12);
                     var neuralLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 15);
+
+                    var neuralValidationInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Validation, 12);
+                    var neuralValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Validation, 15);
+
                     var neuralTestingInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 12);
                     var neuralTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 15);
-                    INeuralDataSet learningSet, testingSet;
 
-                    if (multipleOutput == 0)
-                    {
-                        learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 0);
-                        testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 0);
-                    }
-                    else
-                    {
-                        learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, 1);
-                        testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, 1);
-                    }
+                    var learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput);
+                    var validationSet = NetworkHelper.NormaliseDataSet(neuralValidationInput, neuralValidationOutput);
+                    var testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput);
 
-                    ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
+                    var network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), peopleNumber, inputData, validationSet);
                     learnedNetwork = network;
                 });
 
@@ -252,7 +247,7 @@ namespace FaceRecognition1
             {
                 ga.NewGeneration();
                 Console.WriteLine(100 - ga.BestFitness);
-                using (StreamWriter sw = new StreamWriter("C:\\Projects\\SIECI NEURONOWE 2019\\FaceRecognition1\\WYNIKI",true))
+                using (StreamWriter sw = new StreamWriter("C:\\Projects\\SIECI NEURONOWE 2019\\FaceRecognition1\\WYNIKI", true))
                 {
                     sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   LearningError: " + ga.BestSpecimen.GetLearningFitnessValue() + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
                         "   HNeuronsCount: " + ga.BestSpecimen.HNeuronsCount + "   IsBiased" + ga.BestSpecimen.IsBiased +
