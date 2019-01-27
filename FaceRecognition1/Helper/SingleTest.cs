@@ -39,7 +39,7 @@ namespace FaceRecognition1.Helper
             this.LearningFactor = learningFactor;
             this.Momentum = momentum;
         }
-        public void RunTest(List<Face> faces, bool[] activeFeatures = null)
+        public void RunTest(List<List<Face>> faces, bool[] activeFeatures = null)
         {
             InputClass inputData = new InputClass();
             inputData.ValidateInput((this.HiddenLayersCount).ToString(), (this.HiddenNeuronsCount).ToString(), new ActivationSigmoid(), this.IsBiased,
@@ -51,23 +51,27 @@ namespace FaceRecognition1.Helper
             this.ElapsedTime = inputData.ElapsedTime;
         }
 
-        public void PerformCalculation(InputClass inputData, List<Face> faces, bool[] activeFeatures = null)
+        public void PerformCalculation(InputClass inputData, List<List<Face>> faces, bool[] activeFeatures = null)
         {
             int multipleOutput = inputData.multipleNeurons ? this.PeopleCount : 0;
 
             Console.WriteLine("Szykuje dane zbioru uczacego");
-            double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting, activeFeatures);
-            double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
+            var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12, activeFeatures);
+            var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15, activeFeatures);
+            var networkTestingInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Testing, 12, activeFeatures);
+            var networkTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Testing, 15, activeFeatures);
+            //double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting, activeFeatures);
+            //double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
 
-            double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting, activeFeatures);
-            double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+            //double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting, activeFeatures);
+            //double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
 
             INeuralDataSet learningSet, testingSet;
 
-            learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput, multipleOutput);
-            testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput, multipleOutput);
+            learningSet = NetworkHelper.NormaliseDataSet(networkLearningInput, networkLearningOutput, multipleOutput);
+            testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput, multipleOutput);
 
-            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), multipleOutput, inputData);
+            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), multipleOutput, inputData);
 
         }
         public string ToText()

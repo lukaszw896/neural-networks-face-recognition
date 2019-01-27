@@ -170,6 +170,18 @@ namespace FaceRecognition1.Helper
             }
             return 1;
         }
-
+        public static List<List<Face>> TransformIntoListOfLists(List<Face> allPhotos)
+        {
+            var sortedPhotos = new List<List<Face>>();
+            foreach(var photo in allPhotos)
+            {
+                if(sortedPhotos.Count - 1 < photo.networkIndex)
+                {
+                    sortedPhotos.Add(new List<Face>());
+                }
+                sortedPhotos[photo.networkIndex].Add(photo);
+            }
+            return sortedPhotos;
+        }
     }
 }

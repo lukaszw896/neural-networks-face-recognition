@@ -19,6 +19,12 @@ using System.Windows;
 
 namespace FaceRecognition1.Helper
 {
+    public enum DataSetType
+    {
+        Learning = 0,
+        Validation = 1,
+        Testing = 2
+    }
     public class NetworkHelper
     {
         public static double maxOutput = 0.0;
@@ -29,7 +35,90 @@ namespace FaceRecognition1.Helper
         {
             return new BasicNeuralDataSet(dane, odpowiedzi);
         }
-
+        public static double[][] CreateNetworkInputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType,int featuresCount, bool[] activeFeatures = null)
+        {
+            var dataSetCount = GetDataSetCount(faceList, learnPhotosCount, validationPhotosCount, dataSetType);
+            double[][] networkInput = new double[dataSetCount][];
+            int startingIndex = dataSetType == DataSetType.Learning ? 0 : learnPhotosCount;
+            int currentFaceIndex = 0;
+            for (int i = 0; i < faceList.Count; i++)
+            {
+                int finishIndex = GetFaceFinishIndex(faceList[i].Count, learnPhotosCount, validationPhotosCount, dataSetType);
+                for (int j = startingIndex; j < finishIndex; j++)
+                {
+                    networkInput[currentFaceIndex] = new double[featuresCount];
+                    for (int k = 0; k < featuresCount; k++)
+                    {
+                        networkInput[currentFaceIndex][k] = faceList[i][j].features[k];
+                    }
+                    if (activeFeatures != null)
+                        networkInput[currentFaceIndex] = MultiplyDoubleVec(networkInput[currentFaceIndex], activeFeatures);
+                    currentFaceIndex++;
+                }
+            }
+            return networkInput;
+        }
+        public static double[][] CreateNetworkOutputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType, int outputSize, bool[] activeFeatures = null)
+        {
+            var dataSetCount = GetDataSetCount(faceList, learnPhotosCount, validationPhotosCount, dataSetType);
+            double[][] networkOutput = new double[dataSetCount][];
+            int startingIndex = dataSetType == DataSetType.Learning ? 0 : learnPhotosCount;
+            int currentFaceIndex = 0;
+            for (int i = 0; i < faceList.Count; i++)
+            {
+                int finishIndex = GetFaceFinishIndex(faceList[i].Count, learnPhotosCount, validationPhotosCount, dataSetType);
+                for (int j = startingIndex; j < finishIndex; j++)
+                {
+                    networkOutput[currentFaceIndex] = new double[outputSize];
+                    for (int k = 0; k < outputSize; k++)
+                    {
+                        if (k == faceList[i][j].networkIndex)
+                            networkOutput[currentFaceIndex][k] = 1.0;
+                        else
+                            networkOutput[currentFaceIndex][k] = 0.0;
+                    }
+                    currentFaceIndex++;
+                }
+            }
+            return networkOutput;
+        }
+        private static int GetFaceFinishIndex(int picturesCount, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType)
+        {
+            switch (dataSetType)
+            {
+                case DataSetType.Learning:
+                    return learnPhotosCount;
+                case DataSetType.Validation:
+                    return learnPhotosCount + validationPhotosCount;
+                case DataSetType.Testing:
+                    return picturesCount;
+                default:
+                    throw new Exception("Invalid data set type");
+            }
+        }
+        /// <summary>
+        /// In my assumption Learning set is disjoint with Validation and Testing sets.
+        /// Validation set is a subset of testing set. It's because during creation of this project I had very limited number of facial pictures per person.
+        /// </summary>
+        /// <param name="faceList"></param>
+        /// <param name="learnPhotosCount"></param>
+        /// <param name="validationPhotosCount"></param>
+        /// <param name="dataSetType"></param>
+        /// <returns></returns>
+        private static int GetDataSetCount(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType)
+        {
+            switch (dataSetType)
+            {
+                case DataSetType.Learning:
+                    return faceList.Count * learnPhotosCount;
+                case DataSetType.Validation:
+                    return faceList.Count * validationPhotosCount;
+                case DataSetType.Testing:
+                    return faceList.Sum(x => x.Count - learnPhotosCount);
+                default:
+                    throw new Exception("Invalid data set type");
+            }
+        }
         public static double[][] CreateLearningInputDataSet(List<Face> faces, bool test, bool rozlacznosc, bool[] activeFeatures = null)
         {
             double picNum = 1.0;
@@ -45,7 +134,7 @@ namespace FaceRecognition1.Helper
                     neuralInput[counter] = new double[faces[i].features.Count];
                     for (int j = 0; j < faces[i].features.Count; j++)
                     {
-                            neuralInput[counter][j] = faces[i].features[j];
+                        neuralInput[counter][j] = faces[i].features[j];
                     }
                     if (activeFeatures != null)
                         neuralInput[counter] = MultiplyDoubleVec(neuralInput[counter], activeFeatures);
@@ -73,7 +162,7 @@ namespace FaceRecognition1.Helper
         {
             if (features.Length != isActive.Length)
                 throw new Exception("Multiplied vectors length cannot be different!");
-            for(int i = 0; i < features.Length; i++)
+            for (int i = 0; i < features.Length; i++)
                 features[i] = isActive[i] ? features[i] : 0;
             return features;
         }
@@ -136,7 +225,7 @@ namespace FaceRecognition1.Helper
             return neuralOutput;
         }
 
-        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null,int validationInputSize = 0)
+        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int validationInputSize = 0)
         {
             int iteracje = inputData.IterationsCount;
             List<double> errors = new List<double>();
@@ -152,11 +241,11 @@ namespace FaceRecognition1.Helper
             do
             {
                 network.Iteration();
-                if(validationSet != null)
-                {
-                    currentValidationError = GetNetworkTestError(network, validationSet, validationInputSize, answersSize);
-                }
-                Console.WriteLine("Epoch #" + iteracja + " Error:" + network.Error);
+                //if (validationSet != null)
+                //{
+                //    currentValidationError = GetNetworkTestError(network, validationSet, answersSize);
+                //}
+                //Console.WriteLine("Epoch #" + iteracja + " Error:" + network.Error);
                 errors.Add(network.Error);
                 iteracja++;
             } while ((iteracja < iteracje) && (network.Error > 0.0001) && (network.Error < 10000));
@@ -167,27 +256,27 @@ namespace FaceRecognition1.Helper
             /// I WYKRES ERRORA
             /// 
 
-            inputData.LearningError = GetNetworkTestError(network, learningSet,  testingSize, answersSize);
-            inputData.TestingError = GetNetworkTestError(network, testingSet, testingSize, answersSize);
+            inputData.LearningError = GetNetworkTestError(network, learningSet, answersSize);
+            inputData.TestingError = GetNetworkTestError(network, testingSet, answersSize);
             inputData.ElapsedTime = stopwatch.Elapsed;
             inputData.IterationsCount = iteracja;
             inputData.Errors = errors;
 
-            Console.WriteLine("Learning error: " + inputData.LearningError + 
+            Console.WriteLine("Learning error: " + inputData.LearningError +
                 validationSet != null ? (" ValidationError: " + currentValidationError) : "" +
-                " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime + " IterCount: " + iteracja );
+                " Testing error: " + inputData.TestingError + " Elapsed: " + inputData.ElapsedTime + " IterCount: " + iteracja);
             return network;
 
         }
 
-        public static double GetNetworkTestError(Backpropagation network, INeuralDataSet testingSet, int testingSize, int answersSize)
+        public static double GetNetworkTestError(Backpropagation network, INeuralDataSet testingSet, int answersSize)
         {
-            double[] neuralAnswer = new double[testingSize];
+            double[] neuralAnswer = new double[testingSet.Count];
             int i = 0;
             foreach (var pair in testingSet)
             {
                 double[] output = new double[answersSize];
-                network.Network.Flat.Compute(pair.Input,output);
+                network.Network.Flat.Compute(pair.Input, output);
                 if (answersSize != 0)
                 {
                     double small = 0.0;

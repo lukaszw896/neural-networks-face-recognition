@@ -15,10 +15,10 @@ namespace FaceRecognition1.Genetic
         private Random random;
         private readonly int[] hNeuronsCountBounds = { 2, 90 };
         private readonly int[] hLayersCountBounds = { 0, 5 };
-        private readonly int[] iterationCountBouns = { 4400, 4500 };
+        private readonly int[] iterationCountBouns = { 20000, 30000 };
         private readonly double[] learningFactorBounds = { 0.005, 1.00 };
         private readonly double[] momentumBounds = { 0.005, 0.5 };
-        private List<Face> faces = null;
+        private List<List<Face>> FacesList { get; set; }
         private double fitness = 0.0;
         private SingleTest neuralNetworkData;
         Type type = null;
@@ -33,7 +33,7 @@ namespace FaceRecognition1.Genetic
         public DNA(DNA original)
         {
             this.random = original.random;
-            this.faces = original.faces;
+            this.FacesList = original.FacesList;
             this.HNeuronsCount = original.HNeuronsCount;
             this.HLayersCount = original.HLayersCount;
             this.IsBiased = original.IsBiased;
@@ -43,10 +43,10 @@ namespace FaceRecognition1.Genetic
             this.ActiveFeatures = original.ActiveFeatures;
             this.neuralNetworkData = original.neuralNetworkData;
         }
-        public DNA(Random random, List<Face> faces)
+        public DNA(Random random, List<List<Face>> faces)
         {
             this.type = typeof(DNA);
-            this.faces = faces;
+            this.FacesList = faces;
             this.random = random;
             //12 is a number of features...
             this.ActiveFeatures = new bool[12];
@@ -60,7 +60,7 @@ namespace FaceRecognition1.Genetic
         {
             Console.WriteLine("Fitness calc START");
             this.neuralNetworkData = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
-            this.neuralNetworkData.RunTest(faces, this.ActiveFeatures);
+            this.neuralNetworkData.RunTest(FacesList, this.ActiveFeatures);
             this.fitness = 100 - neuralNetworkData.TestingError;
             Console.WriteLine("Fitness calc FINISH");
             return this.fitness;
@@ -68,7 +68,7 @@ namespace FaceRecognition1.Genetic
 
         public DNA Crossover(DNA secondParent)
         {
-            var child = new DNA(this.random,this.faces);
+            var child = new DNA(this.random,this.FacesList);
             var type = typeof(DNA);
             foreach (PropertyInfo property in type.GetProperties())
             {

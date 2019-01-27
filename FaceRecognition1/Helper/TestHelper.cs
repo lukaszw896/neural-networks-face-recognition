@@ -63,7 +63,7 @@ namespace FaceRecognition1.Helper
                                     for(int p = 0 ; p < podejscie.Length ; p++)
                                     {
                                         SingleTest test = new SingleTest(ludzie[l], neurony[n], warstwy[w], bias[b], rozlacznosc[r], iteracje[i]);
-                                        test.RunTest(faces);
+                                       // test.RunTest(faces);
                                         testy.Add(test);
                                         Console.WriteLine("test " + te + " przeprowadzaony");
                                         te++;

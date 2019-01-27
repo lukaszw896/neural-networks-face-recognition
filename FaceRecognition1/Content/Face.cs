@@ -40,7 +40,7 @@ namespace FaceRecognition1.Content
         /// </summary>
         public int ValidateFace()
         {
-            if(this.name!="unknown" && this.index!=-1 && this.networkIndex!=-1 && this.folderName != "unknown" && this.features.Count>1)
+            if (this.name != "unknown" && this.index != -1 && this.networkIndex != -1 && this.folderName != "unknown" && this.features.Count > 1)
                 return 1;
             else
                 return -1;

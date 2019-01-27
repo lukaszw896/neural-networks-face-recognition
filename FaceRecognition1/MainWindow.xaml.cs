@@ -153,12 +153,16 @@ namespace FaceRecognition1
                 {
                     int multipleOutput = 0;
                     multipleOutput = InputHelper.ChooseMode(inputData.multipleNeurons, peopleNumber);
-
+                    var sortedFaces = InputHelper.TransformIntoListOfLists(faces);
                     Console.WriteLine("Szykuje dane zbioru uczacego");
-                    double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
-                    double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
-                    double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
-                    double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+                    //double[][] neuralLearningInput = NetworkHelper.CreateLearningInputDataSet(faces, false, inputData.learningtesting);
+                    //double[][] neuralLearningOutput = NetworkHelper.CreateLearningOutputDataSet(faces, false, multipleOutput, inputData.learningtesting);
+                    //double[][] neuralTestingInput = NetworkHelper.CreateLearningInputDataSet(faces, true, inputData.learningtesting);
+                    //double[][] neuralTestingOutput = NetworkHelper.CreateLearningOutputDataSet(faces, true, multipleOutput, inputData.learningtesting);
+                    var neuralLearningInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 12);
+                    var neuralLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 15);
+                    var neuralTestingInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 12);
+                    var neuralTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 15);
                     INeuralDataSet learningSet, testingSet;
 
                     if (multipleOutput == 0)
@@ -238,11 +242,12 @@ namespace FaceRecognition1
             BinaryReader br = new BinaryReader(fs);
 
             faces = (List<Face>)bf.Deserialize(fs);
+            var sortedPhotos = InputHelper.TransformIntoListOfLists(faces);
             int populationSize = 80;
             double mutationRate = 0.30;
             int elitism = 4;
             var random = new Random();
-            var ga = new GeneticAlgorithm(populationSize, random, elitism, faces, mutationRate);
+            var ga = new GeneticAlgorithm(populationSize, random, elitism, sortedPhotos, mutationRate);
             for (int i = 0; i < 300; i++)
             {
                 ga.NewGeneration();

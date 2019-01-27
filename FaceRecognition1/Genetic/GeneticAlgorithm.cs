@@ -16,13 +16,13 @@ namespace FaceRecognition1.Genetic
         public DNA BestSpecimen;
         public int Elitism;
         public double MutationRate;
-        private List<Face> faces;
+        private List<List<Face>> faces;
         private List<DNA> newPopulation;
         private Random random;
         private double fitnessSum;
         private int populationSize;
 
-        public GeneticAlgorithm(int populationSize, Random random, int elitism, List<Face> faces, double mutationRate = 0.01f)
+        public GeneticAlgorithm(int populationSize, Random random, int elitism, List<List<Face>> faces, double mutationRate = 0.01f)
         {
             Generation = 1;
             Elitism = elitism;
@@ -93,7 +93,7 @@ namespace FaceRecognition1.Genetic
         {
             fitnessSum = 0;
             DNA best = Population[0];
-            //for(int i=0;i< Population.Count; i++)
+            //for (int i = 0; i < Population.Count; i++)
             //{
             //    Population[i].CalculateFitness();
             //}
