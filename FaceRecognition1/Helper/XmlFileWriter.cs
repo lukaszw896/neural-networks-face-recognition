@@ -14,7 +14,7 @@ namespace FaceRecognition1.Helper
         public static object WriteLock = new object();
 
         public static void WriteDataToFile(string path, double learningError, double validationError, double testingError, TimeSpan elapsedTime,
-            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias, TimeSpan timeSinceStart )
+            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias, TimeSpan timeSinceStart, bool[] activeFeatures = null)
         {
             lock (WriteLock)
             {
@@ -40,7 +40,8 @@ namespace FaceRecognition1.Helper
                         writer.WriteElementString("NeuronsCount", neuronsCount.ToString());
                         writer.WriteElementString("Bias", bias.ToString());
                         writer.WriteElementString("TimeSinceStart", timeSinceStart.ToString());
-
+                        if (activeFeatures != null) writer.WriteElementString("ActiveFeatures", String.Concat(activeFeatures));
+                        else writer.WriteElementString("ActiveFeatures", "allFeatures");
                         writer.WriteEndElement();
                         writer.WriteEndElement();
                         writer.WriteEndDocument();
@@ -66,7 +67,9 @@ namespace FaceRecognition1.Helper
                     new XElement("HiddenLayersCount", hiddenLayersCount.ToString()),
                     new XElement("NeuronsCount", neuronsCount.ToString()),
                     new XElement("Bias", bias.ToString()),
-                    new XElement("TimeSinceStart", timeSinceStart.ToString())));
+                    new XElement("TimeSinceStart", timeSinceStart.ToString()),
+                    activeFeatures != null ? new XElement("ActiveFeatures", String.Concat(activeFeatures)) : new XElement("ActiveFeatures", "allFeatures")
+                    ));
 
                     xDocument.Save(path);
                 }

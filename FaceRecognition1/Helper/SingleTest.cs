@@ -39,19 +39,19 @@ namespace FaceRecognition1.Helper
             this.LearningFactor = learningFactor;
             this.Momentum = momentum;
         }
-        public void RunTest(List<List<Face>> faces, bool[] activeFeatures = null)
+        public void RunTest(List<List<Face>> faces, string calcStartDate, TimeSpan timeFromStart, bool[] activeFeatures = null)
         {
             InputClass inputData = new InputClass();
             inputData.ValidateInput((this.HiddenLayersCount).ToString(), (this.HiddenNeuronsCount).ToString(), new ActivationSigmoid(), this.IsBiased,
                 (this.IterationsCount).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0, this.TestDataSet, this.PeopleCount);
 
-            this.PerformCalculation(inputData, faces, activeFeatures);
+            this.PerformCalculation(inputData, faces, calcStartDate, timeFromStart, activeFeatures);
             this.LearningError = inputData.LearningError;
             this.TestingError = inputData.TestingError;
             this.ElapsedTime = inputData.ElapsedTime;
         }
 
-        public void PerformCalculation(InputClass inputData, List<List<Face>> faces, bool[] activeFeatures = null)
+        public void PerformCalculation(InputClass inputData, List<List<Face>> faces, string calcStartDate, TimeSpan timeFromStart, bool[] activeFeatures = null)
         {
             Console.WriteLine("Szykuje dane zbioru uczacego");
             var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12, activeFeatures);
@@ -67,8 +67,11 @@ namespace FaceRecognition1.Helper
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
             var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
-            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, this.PeopleCount, inputData, validationSet);
-
+            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, this.PeopleCount, inputData, validationSet);
+            Task.Factory.StartNew(() =>
+                            XmlFileWriter.WriteDataToFile("Genetic" + calcStartDate + ".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
+                                inputData.LearningFactor, inputData.Momentum,inputData.HiddenLayers, inputData.HiddenNeurons,inputData.Bias, timeFromStart,activeFeatures)
+                            );
         }
         public string ToText()
         {
