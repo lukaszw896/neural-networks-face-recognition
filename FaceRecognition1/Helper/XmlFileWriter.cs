@@ -14,7 +14,7 @@ namespace FaceRecognition1.Helper
         public static object WriteLock = new object();
 
         public static void WriteDataToFile(string path, double learningError, double validationError, double testingError, TimeSpan elapsedTime,
-            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias)
+            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias, TimeSpan timeSinceStart )
         {
             lock (WriteLock)
             {
@@ -36,9 +36,10 @@ namespace FaceRecognition1.Helper
                         writer.WriteElementString("IterationsCount", iterationsCount.ToString());
                         writer.WriteElementString("LearningRate", learningRate.ToString());
                         writer.WriteElementString("Momentum", momentum.ToString());
-                        writer.WriteElementString("HiddenLatersCount", hiddenLayersCount.ToString());
+                        writer.WriteElementString("HiddenLayersCount", hiddenLayersCount.ToString());
                         writer.WriteElementString("NeuronsCount", neuronsCount.ToString());
                         writer.WriteElementString("Bias", bias.ToString());
+                        writer.WriteElementString("TimeSinceStart", timeSinceStart.ToString());
 
                         writer.WriteEndElement();
                         writer.WriteEndElement();
@@ -62,9 +63,11 @@ namespace FaceRecognition1.Helper
                     new XElement("IterationsCount", iterationsCount.ToString()),
                     new XElement("LearningRate", learningRate.ToString()),
                     new XElement("Momentum", momentum.ToString()),
-                    new XElement("HiddenLatersCount", hiddenLayersCount.ToString()),
+                    new XElement("HiddenLayersCount", hiddenLayersCount.ToString()),
                     new XElement("NeuronsCount", neuronsCount.ToString()),
-                    new XElement("Bias", bias.ToString())));
+                    new XElement("Bias", bias.ToString()),
+                    new XElement("TimeSinceStart", timeSinceStart.ToString())));
+
                     xDocument.Save(path);
                 }
             }

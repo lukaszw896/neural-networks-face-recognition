@@ -281,6 +281,12 @@ namespace FaceRecognition1.Helper
                         }
                         validationSlope.Pop();
                     }
+                    //If it won't learn for 7000 iterations then it will never learn (probably could break earlier...)
+                    if(iteration == 7000 && bestEpoch.Iteration == 0)
+                    {
+                        bestEpoch.Iteration = 7000;
+                        break;
+                    }
                 }
                 //Console.WriteLine("Epoch #" + iteration + " Error:" + network.Error + " ValidationError: " + currentValidationError + " SlopeError: " + slopeAverage);
                 errors.Add(network.Error);

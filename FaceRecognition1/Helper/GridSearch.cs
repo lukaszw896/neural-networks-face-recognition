@@ -3,6 +3,7 @@ using Encog.Neural.Networks.Training;
 using FaceRecognition1.Content;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -36,6 +37,8 @@ namespace FaceRecognition1.Helper
 
         private void PerformCalculations(List<List<Face>> faces)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var date = DateTime.Now.ToString("yyyy-dd-M-HH-mm-ss");
             var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12);
             var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15);
@@ -64,13 +67,14 @@ namespace FaceRecognition1.Helper
                                 NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), 15, inputData, validationSet);
                                 Task.Factory.StartNew(() =>
                                 XmlFileWriter.WriteDataToFile("GridSearch"+ date+".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
-                                    learningRate, momentum, hiddenLayersCount, neuronsCount, bias)
+                                    learningRate, momentum, hiddenLayersCount, neuronsCount, bias, stopwatch.Elapsed)
                                 );
                             }
                         }
                     }
                 }
             }
+            stopwatch.Stop();
         }
     }
 }
