@@ -1,5 +1,6 @@
 ﻿using Encog.Engine.Network.Activation;
 using Encog.Neural.Networks.Training;
+using Encog.Neural.NeuralData;
 using FaceRecognition1.Content;
 using System;
 using System.Collections.Generic;
@@ -53,28 +54,31 @@ namespace FaceRecognition1.Helper
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
             var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
+            Parallel.ForEach(_neuronsCount, (x) => MainCalculationLoop(_learningRate,_momentum,_hiddenLayersCount,_bias,x,learningSet,validationSet,testingSet,faces,date,stopwatch.Elapsed));
+            stopwatch.Stop();
+        }
+
+        private void MainCalculationLoop(double[] _learningRate, double[] _momentum, int[] _hiddenLayersCount, bool[] _bias, int neuronsCount, INeuralDataSet learningSet,
+            INeuralDataSet validationSet, INeuralDataSet testingSet, List<List<Face>> faces, string date, TimeSpan timeFromStart)
+        {
             foreach (var learningRate in _learningRate)
             {
                 foreach (var momentum in _momentum)
                 {
                     foreach (var hiddenLayersCount in _hiddenLayersCount)
                     {
-                        foreach (var neuronsCount in _neuronsCount)
+                        foreach (var bias in _bias)
                         {
-                            foreach (var bias in _bias)
-                            {
-                                var inputData = new InputClass(learningRate, momentum, hiddenLayersCount, neuronsCount, bias, 15, new ActivationSigmoid(),40000);
-                                NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), 15, inputData, validationSet);
-                                Task.Factory.StartNew(() =>
-                                XmlFileWriter.WriteDataToFile("GridSearch"+ date+".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
-                                    learningRate, momentum, hiddenLayersCount, neuronsCount, bias, stopwatch.Elapsed)
-                                );
-                            }
+                            var inputData = new InputClass(learningRate, momentum, hiddenLayersCount, neuronsCount, bias, 15, new ActivationSigmoid(), 40000);
+                            NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, 15, inputData, validationSet);
+                            Task.Factory.StartNew(() =>
+                            XmlFileWriter.WriteDataToFile("GridSearch" + date + ".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
+                                learningRate, momentum, hiddenLayersCount, neuronsCount, bias, timeFromStart)
+                            );
                         }
                     }
                 }
             }
-            stopwatch.Stop();
         }
     }
 }

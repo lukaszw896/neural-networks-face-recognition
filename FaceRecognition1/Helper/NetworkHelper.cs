@@ -240,7 +240,7 @@ namespace FaceRecognition1.Helper
             return neuralOutput;
         }
 
-        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int testingSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int validationInputSize = 0)
+        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int validationInputSize = 0)
         {
             int maxIterationCount = inputData.IterationsCount;
             List<double> errors = new List<double>();

@@ -171,7 +171,7 @@ namespace FaceRecognition1
                     var validationSet = NetworkHelper.NormaliseDataSet(neuralValidationInput, neuralValidationOutput);
                     var testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput);
 
-                    var network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, neuralTestingOutput.Count(), peopleNumber, inputData, validationSet);
+                    var network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, peopleNumber, inputData, validationSet);
                     learnedNetwork = network;
                 });
 

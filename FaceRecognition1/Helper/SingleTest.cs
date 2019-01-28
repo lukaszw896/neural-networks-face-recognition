@@ -67,7 +67,7 @@ namespace FaceRecognition1.Helper
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
             var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
-            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, networkTestingOutput.Count(), this.PeopleCount, inputData, validationSet);
+            ITrain network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, this.PeopleCount, inputData, validationSet);
 
         }
         public string ToText()
