@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Luxand;
-using Microsoft.Win32;
 using FaceRecognition1.Content;
 using FaceRecognition1.Helper;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using Encog.Neural.NeuralData;
-using Encog.Neural.Data.Basic;
 using Encog.Neural.Networks.Training;
 using FaceRecognition1.Genetic;
 using Encog.Engine.Network.Activation;
@@ -34,7 +22,7 @@ namespace FaceRecognition1
         IActivationFunction ActivationFunction { get; set; }
         public InputClass inputData;
         public int Image;
-        public List<Face> faces;
+        public List<Face> Faces { get; set; }
         public int peopleNumber;
         public ITrain learnedNetwork;
         public MainWindow()
@@ -42,7 +30,7 @@ namespace FaceRecognition1
             FSDK.ActivateLibrary("GTNWg1l8Zs+7uJixJ+eBiTF9s1Iofc2pc6UYstMf2/l/MRBagDqX8gzNqXtX64KspTPaszn6+/WwtSHOVDPBQ/WRYTeUTlNJmu9p8tFSCEGDsPodYiISTxA4uoAGtS1iZ3eTbqWkrupH0dCKEdTQzLatWNz7QaCBLaTmdZvn+zU=");
             FSDK.InitializeLibrary();
             InitializeComponent();
-            faces = new List<Face>();
+            Faces = new List<Face>();
             InitialSettings();
         }
 
@@ -56,7 +44,7 @@ namespace FaceRecognition1
         private async void Load_Pic_Click(object sender, RoutedEventArgs e)
         {
             BlakWait.Visibility = Visibility.Visible;
-            faces.Clear();
+            Faces.Clear();
 
             List<List<string>> imageList = ImageLoader.GetImages();
             int folderIndex = 0;
@@ -76,7 +64,7 @@ namespace FaceRecognition1
                 }
                 peopleNumber = imageList.Count;
             });
-            Console.WriteLine("DONE" + faces.Count);
+            Console.WriteLine("DONE" + Faces.Count);
             BlakWait.Visibility = Visibility.Collapsed;
         }
 
@@ -89,7 +77,7 @@ namespace FaceRecognition1
             Face twarz = new Face();
             twarz = InputHelper.FacePreparation(picDir, _name, _folderName, _index, twarz, _folderIndex);
 
-            faces.Add(twarz);
+            Faces.Add(twarz);
             return 1;
         }
 
@@ -98,20 +86,20 @@ namespace FaceRecognition1
         /// </summary>
         private void Save_Pic_Data_Click(object sender, RoutedEventArgs e)
         {
-            if (InputHelper.SaveBinary(faces) == 1)
+            if (InputHelper.SaveBinary(Faces) == 1)
                 Console.WriteLine("zapisano do binarki");
         }
 
         private void Load_Pic_Data_Click(object sender, RoutedEventArgs e)
         {
-            faces.Clear();
-            faces = InputHelper.LoadBinary();
-            if (faces.Count >= 1)
+            Faces.Clear();
+            Faces = InputHelper.LoadBinary();
+            if (Faces.Count >= 1)
             {
                 int peopleCounter = 0;
-                peopleCounter = faces[faces.Count - 1].networkIndex + 1;
+                peopleCounter = Faces[Faces.Count - 1].networkIndex + 1;
                 peopleNumber = peopleCounter;
-                Console.WriteLine("wczytano z binarki " + faces.Count + " danych");
+                Console.WriteLine("wczytano z binarki " + Faces.Count + " danych");
                 errorLblGeneticAlgorithm.Visibility = Visibility.Collapsed;
                 errorLblGridSearch.Visibility = Visibility.Collapsed;
                 errorLblSingleRun.Visibility = Visibility.Collapsed;
@@ -122,7 +110,7 @@ namespace FaceRecognition1
         {
             BlakWait.Visibility = Visibility.Visible;
             inputData = new InputClass();
-            if (faces.Count < 1 || faces == null)
+            if (Faces.Count < 1 || Faces == null)
             {
                 MessageBox.Show("Error ! No data is loaded");
                 BlakWait.Visibility = Visibility.Collapsed;
@@ -157,7 +145,7 @@ namespace FaceRecognition1
         {
             await Task.Run(() =>
                 {
-                    var sortedFaces = InputHelper.TransformIntoListOfLists(faces);
+                    var sortedFaces = InputHelper.TransformIntoListOfLists(Faces);
                     Console.WriteLine("Szykuje dane zbioru uczacego");
 
                     var neuralLearningInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 12);
@@ -173,7 +161,7 @@ namespace FaceRecognition1
                     var validationSet = NetworkHelper.NormaliseDataSet(neuralValidationInput, neuralValidationOutput);
                     var testingSet = NetworkHelper.NormaliseDataSet(neuralTestingInput, neuralTestingOutput);
 
-                    var network = NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0].features.Count, peopleNumber, inputData, validationSet);
+                    var network = NetworkHelper.LearnNetwork(learningSet, testingSet, Faces[0].features.Count, peopleNumber, inputData, validationSet);
                     learnedNetwork = network;
                 });
 
@@ -233,19 +221,13 @@ namespace FaceRecognition1
         private void BtnGridSearch_Click(object sender, RoutedEventArgs e)
         {
             var gs = new GridSearch();
-            gs.StartGridSearch();
+            var sortedPhotos = InputHelper.TransformIntoListOfLists(this.Faces);
+            gs.StartGridSearch(sortedPhotos);
         }
 
         private void BtnGeneticAlgorithm_Click(object sender, RoutedEventArgs e)
         {
-            List<Face> faces = new List<Face>();
-            String path = "C:\\Projects\\SIECI NEURONOWE 2019\\Twarze N 15x20\\ZdjeciaInput302.bin";
-            FileStream fs = new FileStream(path, FileMode.Open);
-            BinaryFormatter bf = new BinaryFormatter();
-            BinaryReader br = new BinaryReader(fs);
-
-            faces = (List<Face>)bf.Deserialize(fs);
-            var sortedPhotos = InputHelper.TransformIntoListOfLists(faces);
+            var sortedPhotos = InputHelper.TransformIntoListOfLists(this.Faces);
             int populationSize = 80;
             double mutationRate = 0.30;
             int elitism = 4;
@@ -255,7 +237,7 @@ namespace FaceRecognition1
             {
                 ga.NewGeneration();
                 Console.WriteLine(100 - ga.BestFitness);
-                using (StreamWriter sw = new StreamWriter("C:\\Projects\\SIECI NEURONOWE 2019\\FaceRecognition1\\WYNIKI", true))
+                using (StreamWriter sw = new StreamWriter("WYNIKI.txt", true))
                 {
                     sw.WriteLine("Error:" + (100 - ga.BestFitness) + "   LearningError: " + ga.BestSpecimen.GetLearningFitnessValue() + "   HLayersCount: " + ga.BestSpecimen.HLayersCount +
                         "   HNeuronsCount: " + ga.BestSpecimen.HNeuronsCount + "   IsBiased" + ga.BestSpecimen.IsBiased +

@@ -21,22 +21,7 @@ namespace FaceRecognition1.Helper
         private readonly int[] _neuronsCount = { 30, 50};
         private readonly bool[] _bias = { true, false };
 
-        public void StartGridSearch()
-        {
-            var faces = GetFacialData();
-            PerformCalculations(faces);
-        }
-        private List<List<Face>> GetFacialData()
-        {
-            var path = "C:\\Projects\\SIECI NEURONOWE 2019\\Twarze N 15x20\\ZdjeciaInput302.bin";
-            var fs = new FileStream(path, FileMode.Open);
-            var bf = new BinaryFormatter();
-            var br = new BinaryReader(fs);
-            var faces = (List<Face>)bf.Deserialize(fs);
-            return InputHelper.TransformIntoListOfLists(faces);
-        }
-
-        private void PerformCalculations(List<List<Face>> faces)
+        public void StartGridSearch(List<List<Face>> faces)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -54,7 +39,7 @@ namespace FaceRecognition1.Helper
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
             var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
-            Parallel.ForEach(_momentum, (x) => MainCalculationLoop(_learningRate,x,_hiddenLayersCount,_bias,_neuronsCount,learningSet,validationSet,testingSet,faces,date,stopwatch.Elapsed));
+            Parallel.ForEach(_momentum, (x) => MainCalculationLoop(_learningRate, x, _hiddenLayersCount, _bias, _neuronsCount, learningSet, validationSet, testingSet, faces, date, stopwatch.Elapsed));
             stopwatch.Stop();
         }
 
