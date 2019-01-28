@@ -43,7 +43,7 @@ namespace FaceRecognition1.Helper
         {
             InputClass inputData = new InputClass();
             inputData.ValidateInput((this.HiddenLayersCount).ToString(), (this.HiddenNeuronsCount).ToString(), new ActivationSigmoid(), this.IsBiased,
-                (this.IterationsCount).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), 0,this.PeopleCount);
+                (this.IterationsCount).ToString(), (this.LearningFactor).ToString(), (this.Momentum).ToString(), this.PeopleCount);
 
             this.PerformCalculation(inputData, faces, calcStartDate, timeFromStart, activeFeatures);
             this.LearningError = inputData.LearningError;

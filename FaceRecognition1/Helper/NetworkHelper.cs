@@ -281,10 +281,10 @@ namespace FaceRecognition1.Helper
                         }
                         validationSlope.Pop();
                     }
-                    //If it won't learn for 7000 iterations then it will never learn (probably could break earlier...)
-                    if(iteration == 7000 && bestEpoch.Iteration == 0)
+                    //If it won't learn for 10000 iterations then it will never learn (probably could break earlier...)
+                    if (iteration == 10000 && bestEpoch.Iteration == 0)
                     {
-                        bestEpoch.Iteration = 7000;
+                        bestEpoch.Iteration = 10000;
                         break;
                     }
                 }

@@ -117,7 +117,7 @@ namespace FaceRecognition1
                 return;
             }
             if (inputData.ValidateInput(TBLayers.Text, TBNeuronsInLayer.Text, ActivationFunction, CBObciazenie.SelectedIndex,
-                TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, CBLastLayer.SelectedIndex, peopleNumber) == false)
+                TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, peopleNumber) == false)
             {
                 BlakWait.Visibility = Visibility.Collapsed;
                 return;
