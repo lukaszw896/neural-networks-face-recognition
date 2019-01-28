@@ -16,9 +16,9 @@ namespace FaceRecognition1.Helper
     public class GridSearch
     {
         private readonly double[] _learningRate = { 0.001, 0.003, 0.01 };
-        private readonly double[] _momentum = { 0.001, 0.003, 0.01 };
+        private readonly double[] _momentum = { 0.001, 0.003, 0.01, 0.4 };
         private readonly int[] _hiddenLayersCount = { 1, 2, 3 };
-        private readonly int[] _neuronsCount = { 30, 50, 70, 90, 110 };
+        private readonly int[] _neuronsCount = { 30, 50};
         private readonly bool[] _bias = { true, false };
 
         public void StartGridSearch()
@@ -54,26 +54,26 @@ namespace FaceRecognition1.Helper
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);
             var testingSet = NetworkHelper.NormaliseDataSet(networkTestingInput, networkTestingOutput);
 
-            Parallel.ForEach(_neuronsCount, (x) => MainCalculationLoop(_learningRate,_momentum,_hiddenLayersCount,_bias,x,learningSet,validationSet,testingSet,faces,date,stopwatch.Elapsed));
+            Parallel.ForEach(_momentum, (x) => MainCalculationLoop(_learningRate,x,_hiddenLayersCount,_bias,_neuronsCount,learningSet,validationSet,testingSet,faces,date,stopwatch.Elapsed));
             stopwatch.Stop();
         }
 
-        private void MainCalculationLoop(double[] _learningRate, double[] _momentum, int[] _hiddenLayersCount, bool[] _bias, int neuronsCount, INeuralDataSet learningSet,
+        private void MainCalculationLoop(double[] _learningRate, double _momentum, int[] _hiddenLayersCount, bool[] _bias, int[] _neuronsCount, INeuralDataSet learningSet,
             INeuralDataSet validationSet, INeuralDataSet testingSet, List<List<Face>> faces, string date, TimeSpan timeFromStart)
         {
             foreach (var learningRate in _learningRate)
             {
-                foreach (var momentum in _momentum)
+                foreach (var neuronsCount in _neuronsCount)
                 {
                     foreach (var hiddenLayersCount in _hiddenLayersCount)
                     {
                         foreach (var bias in _bias)
                         {
-                            var inputData = new InputClass(learningRate, momentum, hiddenLayersCount, neuronsCount, bias, 15, new ActivationSigmoid(), 40000);
+                            var inputData = new InputClass(learningRate, _momentum, hiddenLayersCount, neuronsCount, bias, 15, new ActivationSigmoid(), 40000);
                             NetworkHelper.LearnNetwork(learningSet, testingSet, faces[0][0].features.Count, 15, inputData, validationSet);
                             Task.Factory.StartNew(() =>
                             XmlFileWriter.WriteDataToFile("GridSearch" + date + ".xml", inputData.LearningError, inputData.ValidationError, inputData.TestingError, inputData.ElapsedTime, inputData.IterationsCount,
-                                learningRate, momentum, hiddenLayersCount, neuronsCount, bias, timeFromStart)
+                                learningRate, _momentum, hiddenLayersCount, neuronsCount, bias, timeFromStart)
                             );
                         }
                     }

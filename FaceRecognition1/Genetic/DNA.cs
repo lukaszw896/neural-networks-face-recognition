@@ -13,8 +13,8 @@ namespace FaceRecognition1.Genetic
     {
         //remember that passed random has to have double value in range 0-1
         private Random random;
-        private readonly int[] hNeuronsCountBounds = { 2, 90 };
-        private readonly int[] hLayersCountBounds = { 0, 5 };
+        private readonly int[] hNeuronsCountBounds = { 2, 70 };
+        private readonly int[] hLayersCountBounds = { 0, 3 };
         private readonly int[] iterationCountBouns = { 20000, 30000 };
         private readonly double[] learningFactorBounds = { 0.005, 1.00 };
         private readonly double[] momentumBounds = { 0.005, 0.5 };
@@ -56,11 +56,11 @@ namespace FaceRecognition1.Genetic
             }
         }
         //TODO Save test info to file?
-        public double CalculateFitness()
+        public double CalculateFitness(string calcStartDate, TimeSpan timeFromStart)
         {
             Console.WriteLine("Fitness calc START");
-            this.neuralNetworkData = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, IterationCount, LearningFactor, Momentum);
-            this.neuralNetworkData.RunTest(FacesList, this.ActiveFeatures);
+            this.neuralNetworkData = new SingleTest(/*number of faces...*/15, HNeuronsCount, HLayersCount, IsBiased ? 1 : 0, 1, 40000, LearningFactor, Momentum);
+            this.neuralNetworkData.RunTest(FacesList, calcStartDate, timeFromStart, this.ActiveFeatures);
             this.fitness = 100 - neuralNetworkData.TestingError;
             Console.WriteLine("Fitness calc FINISH");
             return this.fitness;

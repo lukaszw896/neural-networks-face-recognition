@@ -1,6 +1,7 @@
 ﻿using FaceRecognition1.Content;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,14 @@ namespace FaceRecognition1.Genetic
         private Random random;
         private double fitnessSum;
         private int populationSize;
+        private string calcStartDate;
+        private Stopwatch stopwatch = new Stopwatch();
 
         public GeneticAlgorithm(int populationSize, Random random, int elitism, List<List<Face>> faces, double mutationRate = 0.01f)
         {
+
+            this.calcStartDate = DateTime.Now.ToString("yyyy-dd-M-HH-mm-ss");
+            stopwatch.Start();
             Generation = 1;
             Elitism = elitism;
             MutationRate = mutationRate;
@@ -50,7 +56,7 @@ namespace FaceRecognition1.Genetic
 
             if (Population.Count > 0)
             {
-                CalculateFitness();
+                CalculateFitness(this.calcStartDate,stopwatch.Elapsed);
                 Population.Sort(CompareDNA);
             }
             newPopulation.Clear();
@@ -89,7 +95,7 @@ namespace FaceRecognition1.Genetic
             return Population[index];
         }
 
-        private void CalculateFitness()
+        private void CalculateFitness(string calcStartDate, TimeSpan timeFromStart)
         {
             fitnessSum = 0;
             DNA best = Population[0];
@@ -97,7 +103,7 @@ namespace FaceRecognition1.Genetic
             //{
             //    Population[i].CalculateFitness();
             //}
-            Parallel.For(0, Population.Count, (x) => Population[x].CalculateFitness());
+            Parallel.For(0, Population.Count, (x) => Population[x].CalculateFitness(calcStartDate, timeFromStart));
             for (int i = 0; i < Population.Count; i++)
             {
                 fitnessSum += Population[i].GetFitnessValue();
