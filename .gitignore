@@ -8,3 +8,6 @@
 /.vs/FaceRecognition1/DesignTimeBuild
 /.vs/FaceRecognition1/v15/Server/sqlite3
 /.vs/FaceRecognition1/v15
+/FaceRecognition1/obj/Release
+/.vs/neural-networks-face-recognition/v15
+/.vs

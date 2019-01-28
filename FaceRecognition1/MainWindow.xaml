@@ -122,10 +122,9 @@
                         <Label Name="lblIterationsCount" Grid.Row="2" Grid.Column="3">...</Label>
                         
                         <Button Content="RUN NETWORK" Grid.ColumnSpan="4" Grid.Row="3" Click="Ucz_Siec_Click" />
-                        <Button Content="Save Network" Grid.Column="3" Grid.Row="4"  Click="SaveNetwork_Click" />
-                        <Button Content="Test Network" Grid.Column="2" Grid.Row="4" Click="TestNetwork_Click" />
-
-                        <Button Content="test" HorizontalAlignment="Center" Margin="1,1,1,1" Grid.Row="4"/>
+                        <!--<Button Content="Save Network" Grid.Column="3" Grid.Row="4"  Click="SaveNetwork_Click" />-->
+                        <!--<Button Content="Test Network" Grid.Column="2" Grid.Row="4" Click="TestNetwork_Click" />-->
+                        <!--<Button Content="test" HorizontalAlignment="Center" Margin="1,1,1,1" Grid.Row="4"/>-->
                     </Grid>
                 </GroupBox>
 
