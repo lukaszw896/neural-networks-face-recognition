@@ -40,7 +40,7 @@ namespace FaceRecognition1.Content
             this.IterationsCount = iterationsCount;
         }
         public bool ValidateInput(string TBLayers, string TBNeuronsInLayer, IActivationFunction _activationFunction,
-            int _bias, string TBIteracje, string TBWspUczenia, string TBWspBezwladnosci, int _multipleNeurons, int _learningtesting, int _peopleNumber)
+            int _bias, string TBIteracje, string TBWspUczenia, string TBWspBezwladnosci, int _multipleNeurons, int _peopleNumber)
         {
             bool isCorrect = true;
             int _hiddenLayers = 0;

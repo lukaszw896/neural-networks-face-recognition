@@ -1,18 +1,19 @@
 ﻿<Window x:Class="FaceRecognition1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="Face Recognition - NN Project" Height="353" Width="1000">
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-            <GroupBox Grid.Column="0" Header="Network Settings" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
+            <GroupBox Grid.Column="0" Header="Single Run Network" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="41*"/>
+                        <ColumnDefinition Width="147*"/>
+                        <ColumnDefinition Width="187*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
@@ -23,75 +24,85 @@
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="30"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Label Grid.Column="0" Grid.Row="0" Content="Hidden Layers :" />
-                    <Label Grid.Column="0" Grid.Row="1" Content="Hidden Neurons :" />
-                    <Label Grid.Column="0" Grid.Row="2" Content="Activation Function :"/>
-                    <Label Grid.Column="0" Grid.Row="3" Content="Bias :"/>
-                    <Label Grid.Column="0" Grid.Row="4" Content="Iterations :"/>
-                    <Label Grid.Column="0" Grid.Row="5" Content="Learning Factor :" />
-                    <Label Grid.Column="0" Grid.Row="6" Content="Momentum :"/>
-                    <Label Grid.Column="0" Grid.Row="7" Content="Last Layer :"/>
+                    <Label Name="errorLblSingleRun" Grid.RowSpan="10" Grid.ColumnSpan="4" FontWeight="ExtraBold" FontSize="20" Panel.ZIndex="3" Background="Red" Opacity="0.7" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Data is not loaded</Label>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Hidden Layers :" Grid.ColumnSpan="2" />
+                    <Label Grid.Column="0" Grid.Row="1" Content="Hidden Neurons :" Grid.ColumnSpan="2" />
+                    <Label Grid.Column="0" Grid.Row="2" Content="Activation Function :" Grid.ColumnSpan="2"/>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Bias :" Grid.ColumnSpan="2"/>
+                    <Label Grid.Column="0" Grid.Row="4" Content="Iterations :" Grid.ColumnSpan="2"/>
+                    <Label Grid.Column="0" Grid.Row="5" Content="Learning Factor :" Grid.ColumnSpan="2" />
+                    <Label Grid.Column="0" Grid.Row="6" Content="Momentum :" Grid.ColumnSpan="2"/>
+                    <Label Grid.Column="0" Grid.Row="7" Content="Last Layer :" Grid.ColumnSpan="2"/>
 
-                    <TextBox Name="TBLayers" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="Wrap" Text="2" VerticalAlignment="Center"/>
-                    <TextBox Name="TBNeuronsInLayer" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="Wrap" Text="35" VerticalAlignment="Center"  />
-                    <ComboBox Name ="CBAktywacje" HorizontalAlignment="Left" Margin="2,2,2,2" VerticalAlignment="Center" SelectionChanged="CBAktywacje_SelectionChanged" Grid.Column="1" Grid.Row="2">
+                    <TextBox Name="TBLayers" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" Margin="2,7,0,6" TextWrapping="Wrap" Text="2" VerticalAlignment="Center"/>
+                    <TextBox Name="TBNeuronsInLayer" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Margin="2,7,0,6" TextWrapping="Wrap" Text="35" VerticalAlignment="Center"  />
+                    <ComboBox Name ="CBAktywacje" HorizontalAlignment="Left" Margin="2,4,0,5" VerticalAlignment="Center" SelectionChanged="CBAktywacje_SelectionChanged" Grid.Column="2" Grid.Row="2">
                         <ComboBoxItem Name="cbi4">Linear</ComboBoxItem>
                         <ComboBoxItem Name="cbi5">LOG</ComboBoxItem>
                         <ComboBoxItem Name="cbi7">Sigmoid</ComboBoxItem>
                         <ComboBoxItem Name="cbi8">SIN</ComboBoxItem>
                         <ComboBoxItem Name="cbi11">TANH</ComboBoxItem>
                     </ComboBox>
-                    <ComboBox Name ="CBObciazenie" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="2,2,2,2" VerticalAlignment="Center">
+                    <ComboBox Name ="CBObciazenie" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Left" Margin="2,5,0,4" VerticalAlignment="Center">
                         <ComboBoxItem Name="cbi12">Bias OFF</ComboBoxItem>
                         <ComboBoxItem Name="cbi13">Bias ON</ComboBoxItem>
                     </ComboBox>
-                    <TextBox Name="TBIteracje" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="Wrap" Text="35000" VerticalAlignment="Center"/>
-                    <TextBox Name="TBWspUczenia" Grid.Column="1" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="Wrap" Text="0.01" VerticalAlignment="Center"  Grid.Row="5"/>
-                    <TextBox Name="TBWspBezwladnosci" Grid.Column="1" Grid.Row="6" HorizontalAlignment="Left" Margin="2,2,2,2" TextWrapping="Wrap" Text="0.4" VerticalAlignment="Center"/>
-                    <ComboBox Name ="CBLastLayer" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Left" Margin="2,2,2,2" VerticalAlignment="Center">
+                    <TextBox Name="TBIteracje" Grid.Column="2" Grid.Row="4" HorizontalAlignment="Left" Margin="2,7,0,6" TextWrapping="Wrap" Text="35000" VerticalAlignment="Center"/>
+                    <TextBox Name="TBWspUczenia" Grid.Column="2" HorizontalAlignment="Left" Margin="2,7,0,6" TextWrapping="Wrap" Text="0.01" VerticalAlignment="Center"  Grid.Row="5"/>
+                    <TextBox Name="TBWspBezwladnosci" Grid.Column="2" Grid.Row="6" HorizontalAlignment="Left" Margin="2,7,0,6" TextWrapping="Wrap" Text="0.4" VerticalAlignment="Center"/>
+                    <ComboBox Name ="CBLastLayer" Grid.Column="2" Grid.Row="7" HorizontalAlignment="Left" Margin="2,5,0,4" VerticalAlignment="Center">
                         <ComboBoxItem Name="cbl1">Multiple Neurons</ComboBoxItem>
                         <ComboBoxItem Name="cbl2">Single Neuron</ComboBoxItem>
                     </ComboBox>
+                    <Button Content="RUN NETWORK" Grid.ColumnSpan="2" Grid.Row="8" Click="Ucz_Siec_Click" Grid.Column="1" Margin="81,2,123,2" />
                 </Grid>
             </GroupBox>
             <Grid Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox Grid.Row="0" Header="Data Settings" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
+                <GroupBox Grid.Row="0" Grid.Column="0" Header="FaceSDK">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Button Grid.Row="0" Grid.ColumnSpan="2" Content="Analyse Database" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Click" />
-                        <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Save data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Save_Pic_Data_Click" />
-                        <Button Grid.Row="2" Grid.ColumnSpan="2" Content="Load data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Data_Click" />
-                        <Label Grid.Column="0" Grid.Row="3" Content="Learning / Testing Sets :" HorizontalAlignment="Right" Margin="1,1,1,1" VerticalAlignment="Center"/>
-                        <ComboBox Name ="CBSets" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Margin="1,1,1,1" VerticalAlignment="Center">
-                            <ComboBoxItem Name="cbs1" >partialy excluded</ComboBoxItem>
-                            <ComboBoxItem Name="cbs2" >excluded</ComboBoxItem>
-                        </ComboBox>
+                        <Button Grid.Row="0"  Content="Analyse Database" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Click" />
+                        <Button Grid.Row="1"  Content="Save data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Save_Pic_Data_Click" />
+                        <Label Grid.RowSpan="2" Grid.ColumnSpan="2" FontWeight="ExtraBold" FontSize="20" Panel.ZIndex="3" Background="Red" Opacity="0.7" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Api Key Not Valid!</Label>
                     </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="1" Header="GeneticAlgorithm">
-                    <Button Name="btnGeneticAlgorithm" Content="Run genetic algorithm" Click="BtnGeneticAlgorithm_Click"/>
+                <GroupBox Grid.Row="0" Grid.Column="1" Header="Data Settings" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+
+                        </Grid.RowDefinitions>
+                        <Button Grid.Row="1" Content="Load data" HorizontalAlignment="Center" Margin="1,1,1,1" VerticalAlignment="Center" Click="Load_Pic_Data_Click" />
+                    </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="2" Header="Grid Search">
-                    <Button Name="btnGridSearch"  Content="Run Grid Search" Click="BtnGridSearch_Click"/>
+                <GroupBox Grid.Row="1" Grid.ColumnSpan="2" Header="GeneticAlgorithm">
+                    <Grid>
+                        <Label Name="errorLblGeneticAlgorithm" Grid.RowSpan="2" Grid.ColumnSpan="2" FontWeight="ExtraBold" FontSize="20" Panel.ZIndex="3" Background="Red" Opacity="0.7" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Data is not loaded</Label>
+                        <Button Name="btnGeneticAlgorithm" Content="Run genetic algorithm" Click="BtnGeneticAlgorithm_Click"/>
+                    </Grid>
                 </GroupBox>
-                <GroupBox Grid.Row="3" Header="Control Panel" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
+                <GroupBox Grid.Row="2" Grid.ColumnSpan="2" Header="Grid Search">
+                    <Grid>
+                        <Label Name="errorLblGridSearch" Grid.RowSpan="10" Grid.ColumnSpan="4" FontWeight="ExtraBold" FontSize="20" Panel.ZIndex="3" Background="Red" Opacity="0.7" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Data is not loaded</Label>
+                        <Button Name="btnGridSearch"  Content="Run Grid Search" Click="BtnGridSearch_Click"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Row="3" Grid.ColumnSpan="2" Header="Control Panel" HorizontalAlignment="Stretch" Margin="5,5,5,5" VerticalAlignment="Stretch" >
                     <Grid >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
@@ -120,8 +131,7 @@
                         <Label Name="lblValidationError" Grid.Row="2" Grid.Column="1">...</Label>
                         <Label Grid.Row="2" Grid.Column="2">Iterations</Label>
                         <Label Name="lblIterationsCount" Grid.Row="2" Grid.Column="3">...</Label>
-                        
-                        <Button Content="RUN NETWORK" Grid.ColumnSpan="4" Grid.Row="3" Click="Ucz_Siec_Click" />
+
                         <!--<Button Content="Save Network" Grid.Column="3" Grid.Row="4"  Click="SaveNetwork_Click" />-->
                         <!--<Button Content="Test Network" Grid.Column="2" Grid.Row="4" Click="TestNetwork_Click" />-->
                         <!--<Button Content="test" HorizontalAlignment="Center" Margin="1,1,1,1" Grid.Row="4"/>-->

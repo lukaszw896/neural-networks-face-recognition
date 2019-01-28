@@ -50,7 +50,6 @@ namespace FaceRecognition1
         {
             CBAktywacje.SelectedIndex = 2;
             CBObciazenie.SelectedIndex = 1;
-            CBSets.SelectedIndex = 0;
             CBLastLayer.SelectedIndex = 0;
         }
 
@@ -113,6 +112,9 @@ namespace FaceRecognition1
                 peopleCounter = faces[faces.Count - 1].networkIndex + 1;
                 peopleNumber = peopleCounter;
                 Console.WriteLine("wczytano z binarki " + faces.Count + " danych");
+                errorLblGeneticAlgorithm.Visibility = Visibility.Collapsed;
+                errorLblGridSearch.Visibility = Visibility.Collapsed;
+                errorLblSingleRun.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -127,7 +129,7 @@ namespace FaceRecognition1
                 return;
             }
             if (inputData.ValidateInput(TBLayers.Text, TBNeuronsInLayer.Text, ActivationFunction, CBObciazenie.SelectedIndex,
-                TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, CBLastLayer.SelectedIndex, CBSets.SelectedIndex, peopleNumber) == false)
+                TBIteracje.Text, TBWspUczenia.Text, TBWspBezwladnosci.Text, CBLastLayer.SelectedIndex, peopleNumber) == false)
             {
                 BlakWait.Visibility = Visibility.Collapsed;
                 return;
