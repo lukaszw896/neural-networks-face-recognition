@@ -55,13 +55,13 @@ namespace FaceRecognition1.Helper
         {
             Console.WriteLine("Szykuje dane zbioru uczacego");
             var networkLearningInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Learning, 12, activeFeatures);
-            var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15, activeFeatures);
+            var networkLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Learning, 15);
 
             var networkValidationInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Validation, 12, activeFeatures);
-            var networkValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Validation, 15, activeFeatures);
+            var networkValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Validation, 15);
 
             var networkTestingInput = NetworkHelper.CreateNetworkInputDataSet(faces, 12, 5, DataSetType.Testing, 12, activeFeatures);
-            var networkTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Testing, 15, activeFeatures);
+            var networkTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(faces, 12, 5, DataSetType.Testing, 15);
 
             var learningSet = NetworkHelper.NormaliseDataSet(networkLearningInput, networkLearningOutput);
             var validationSet = NetworkHelper.NormaliseDataSet(networkValidationInput, networkValidationOutput);

@@ -73,7 +73,7 @@ namespace FaceRecognition1.Helper
             }
             return networkInput;
         }
-        public static double[][] CreateNetworkOutputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType, int outputSize, bool[] activeFeatures = null)
+        public static double[][] CreateNetworkOutputDataSet(List<List<Face>> faceList, int learnPhotosCount, int validationPhotosCount, DataSetType dataSetType, int outputSize)
         {
             var dataSetCount = GetDataSetCount(faceList, learnPhotosCount, validationPhotosCount, dataSetType);
             double[][] networkOutput = new double[dataSetCount][];
@@ -240,12 +240,12 @@ namespace FaceRecognition1.Helper
             return neuralOutput;
         }
 
-        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int validationInputSize = 0)
+        public static ITrain LearnNetwork(INeuralDataSet learningSet, INeuralDataSet testingSet, int inputSize, int answersSize, InputClass inputData, INeuralDataSet validationSet = null, int seed = -1)
         {
             int maxIterationCount = inputData.IterationsCount;
             List<double> errors = new List<double>();
             Console.WriteLine("Tworze siec...");
-            var network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData);
+            var network = CreateNeuronNetwork(learningSet, inputSize, answersSize, inputData,seed);
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -272,21 +272,21 @@ namespace FaceRecognition1.Helper
                     {
                         validationSlope.Push(currentValidationError - bestEpoch.ValidationError);
                     }
-                    if (validationSlope.Count > 100)
+                    if (validationSlope.Count > 200)
                     {
                         slopeAverage = validationSlope.Average();
-                        if (slopeAverage > 10.0)
+                        if (slopeAverage > 17.0)
                         {
                             break;
                         }
                         validationSlope.Pop();
                     }
                     //If it won't learn for 10000 iterations then it will never learn (probably could break earlier...)
-                    if (iteration == 10000 && bestEpoch.Iteration == 0)
-                    {
-                        bestEpoch.Iteration = 10000;
-                        break;
-                    }
+                    //if (iteration == 35000 && bestEpoch.Iteration == 0)
+                    //{
+                    //    bestEpoch.Iteration = 35000;
+                    //    break;
+                    //}
                 }
                 //Console.WriteLine("Epoch #" + iteration + " Error:" + network.Error + " ValidationError: " + currentValidationError + " SlopeError: " + slopeAverage);
                 errors.Add(network.Error);
@@ -438,7 +438,7 @@ namespace FaceRecognition1.Helper
         }
 
 
-        public static Backpropagation CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize, InputClass inputData)
+        public static Backpropagation CreateNeuronNetwork(INeuralDataSet learningSet, int inputSize, int answersSize, InputClass inputData, int seed = -1)
         {
             var network = new BasicNetwork();
             //------------------------------------------------------------------------------------------
@@ -463,7 +463,10 @@ namespace FaceRecognition1.Helper
                 network.AddLayer(new BasicLayer(ActivationFunction, false, answersSize));
 
             network.Structure.FinalizeStructure();
-            network.Reset(324523);
+            if (seed != -1)
+                network.Reset(seed);
+            else
+                network.Reset(324523);
             var train = new Backpropagation(network, learningSet, learning, momentum);
             return train;
         }

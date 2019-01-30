@@ -86,6 +86,7 @@
     <Compile Include="Content\InputClass.cs" />
     <Compile Include="Genetic\DNA.cs" />
     <Compile Include="Genetic\GeneticAlgorithm.cs" />
+    <Compile Include="Helper\FinalTest.cs" />
     <Compile Include="Helper\XmlFileWriter.cs" />
     <Compile Include="Helper\GridSearch.cs" />
     <Compile Include="Helper\ImageLoader.cs" />

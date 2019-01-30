@@ -148,13 +148,13 @@ namespace FaceRecognition1
                     var sortedFaces = InputHelper.TransformIntoListOfLists(Faces);
                     Console.WriteLine("Szykuje dane zbioru uczacego");
 
-                    var neuralLearningInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 12);
+                    var neuralLearningInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 12/*, new bool[] { true,true, false, true,false,true,true,true,true,true,false,false }*/);
                     var neuralLearningOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Learning, 15);
 
-                    var neuralValidationInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Validation, 12);
+                    var neuralValidationInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Validation, 12/*, new bool[] { true, true, false, true, false, true, true, true, true, true, false, false }*/);
                     var neuralValidationOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Validation, 15);
 
-                    var neuralTestingInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 12);
+                    var neuralTestingInput = NetworkHelper.CreateNetworkInputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 12/*, new bool[] { true, true, false, true, false, true, true, true, true, true, false, false }*/);
                     var neuralTestingOutput = NetworkHelper.CreateNetworkOutputDataSet(sortedFaces, 12, 5, DataSetType.Testing, 15);
 
                     var learningSet = NetworkHelper.NormaliseDataSet(neuralLearningInput, neuralLearningOutput);
@@ -220,16 +220,18 @@ namespace FaceRecognition1
 
         private void BtnGridSearch_Click(object sender, RoutedEventArgs e)
         {
-            var gs = new GridSearch();
+            var ft = new FinalTest();
+            //var gs = new GridSearch();
             var sortedPhotos = InputHelper.TransformIntoListOfLists(this.Faces);
-            gs.StartGridSearch(sortedPhotos);
+            //gs.StartGridSearch(sortedPhotos);
+            ft.PerformFinalTest(sortedPhotos);
         }
 
         private void BtnGeneticAlgorithm_Click(object sender, RoutedEventArgs e)
         {
             var sortedPhotos = InputHelper.TransformIntoListOfLists(this.Faces);
-            int populationSize = 80;
-            double mutationRate = 0.30;
+            int populationSize = 90;
+            double mutationRate = 0.33;
             int elitism = 4;
             var random = new Random();
             var ga = new GeneticAlgorithm(populationSize, random, elitism, sortedPhotos, mutationRate);

@@ -14,7 +14,7 @@ namespace FaceRecognition1.Helper
         public static object WriteLock = new object();
 
         public static void WriteDataToFile(string path, double learningError, double validationError, double testingError, TimeSpan elapsedTime,
-            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias, TimeSpan timeSinceStart, bool[] activeFeatures = null)
+            int iterationsCount, double learningRate, double momentum, int hiddenLayersCount, int neuronsCount, bool bias, TimeSpan timeSinceStart, bool[] activeFeatures = null, int seed = -1)
         {
             lock (WriteLock)
             {
@@ -42,6 +42,8 @@ namespace FaceRecognition1.Helper
                         writer.WriteElementString("TimeSinceStart", timeSinceStart.ToString());
                         if (activeFeatures != null) writer.WriteElementString("ActiveFeatures", String.Concat(activeFeatures));
                         else writer.WriteElementString("ActiveFeatures", "allFeatures");
+                        if (seed != -1) writer.WriteElementString("Seed", seed.ToString());
+                        else writer.WriteElementString("Seed", "Static seed");
                         writer.WriteEndElement();
                         writer.WriteEndElement();
                         writer.WriteEndDocument();
@@ -68,7 +70,8 @@ namespace FaceRecognition1.Helper
                     new XElement("NeuronsCount", neuronsCount.ToString()),
                     new XElement("Bias", bias.ToString()),
                     new XElement("TimeSinceStart", timeSinceStart.ToString()),
-                    activeFeatures != null ? new XElement("ActiveFeatures", String.Concat(activeFeatures)) : new XElement("ActiveFeatures", "allFeatures")
+                    activeFeatures != null ? new XElement("ActiveFeatures", String.Concat(activeFeatures)) : new XElement("ActiveFeatures", "allFeatures"),
+                    seed != -1 ? new XElement("Seed",seed.ToString()) : new XElement("Seed", "Static seed")
                     ));
 
                     xDocument.Save(path);
